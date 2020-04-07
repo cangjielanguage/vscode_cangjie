@@ -1,3 +1,0 @@
-# Cangjie-vscode-plugins
-
-null
