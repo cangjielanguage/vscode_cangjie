@@ -1,0 +1,644 @@
+{
+    "name": "Cangjie-Debug-Support",
+    "displayName": "Cangjie Debug Support",
+    "description": "VS Code support of Cangjie-debug",
+    "version": "0.36.5",
+    "publisher": "IDE-Innovation-Lab",
+    "icon": "images/cangjie_icon.png",
+    "repository": {
+        "type": "git",
+        "url": "/"
+    },
+    "engines": {
+        "vscode": "^1.65.0"
+    },
+    "categories": [
+        "Programming Languages",
+        "Debuggers"
+    ],
+    "keywords": [
+        "Cangjie"
+    ],
+    "activationEvents": [
+        "onLanguage:Cangjie",
+        "onCommand:cangjie.debug.buildAndDebugCurrentFile",
+        "onDebugResolve:cangjieDebug",
+        "onDebug",
+        "workspaceContains:**/*.cj"
+    ],
+    "main": "./out/extension",
+    "scripts": {
+        "vscode:prepublish": "npm run webpack-dap",
+        "webpack-dap": "webpack --mode production --config webpack.config.dap.js",
+        "jest": "jest --force-exit --detectOpenHandles",
+        "jest-j": "jest --force-exit --detectOpenHandles --json --outputFile=test-report.json",
+        "jest-c": "jest --coverage --force-exit --detectOpenHandles"
+    },
+    "dependencies": {
+        "@vscode/debugadapter": "1.68.0"
+    },
+    "devDependencies": {
+        "@types/expect": "24.3.0",
+        "@types/glob": "^7.1.1",
+        "@types/node": "^14.14.41",
+        "@types/vscode": "^1.65.0",
+        "clean-webpack-plugin": "^3.0.0",
+        "glob": "^7.1.4",
+        "keytar": "^7.9.0",
+        "source-map-support": "^0.5.12",
+        "terser-webpack-plugin": "^4.2.2",
+        "ts-loader": "^9.4.1",
+        "tslint": "^5.16.0",
+        "typescript": "4.2.3",
+        "vsce": "^1.99.0",
+        "vscode-test": "1.6.1",
+        "webpack": "^5.72.1",
+        "webpack-cli": "^4.7.2",
+        "webpack-merge": "^5.1.4",
+        "@babel/core": "^7.21.0",
+        "@babel/preset-env": "^7.20.2",
+        "@babel/preset-typescript": "^7.18.6",
+        "@types/jest": "^29.4.0",
+        "babel-jest": "^29.4.1",
+        "jest": "^29.4.0",
+        "jest-junit": "^15.0.0"
+    },
+    "contributes": {
+        "languages": [
+            {
+                "id": "Cangjie",
+                "aliases": [
+                    "Cangjie"
+                ],
+                "filenamePatterns": [
+                    "**/include/cangjie/**"
+                ],
+                "firstLine": "^/[/*].*-\\*-\\s*C\\+\\+\\s*-\\*-.*",
+                "extensions": [
+                    ".cj",
+                    ".cj.macrocall"
+                ]
+            }
+        ],
+        "grammars": [
+            {
+                "language": "dap.disassembly",
+                "scopeName": "source.cj.disassembly",
+                "path": "./syntaxes/dap-disassembly.json"
+            }
+        ],
+        "configuration": [
+            {
+                "type": "object",
+                "title": "Cangjie Language Support",
+                "properties": {
+                    "CangjieSdkPath.CJNativeBackend": {
+                        "type": "string",
+                        "default": "",
+                        "description": "The absolute path to CJNative-sdk, e.g.: /path/to/CJNative/cangjie",
+                        "order": 1
+                    },
+                    "CangjieSdkPath.CJVMBackend": {
+                        "type": "string",
+                        "default": "",
+                        "description": "(Linux Only)The absolute path to CJVM-sdk, e.g.: /path/to/CJVM/cangjie",
+                        "order": 2
+                    },
+                    "CangjieSdk.Option": {
+                        "type": "string",
+                        "default": "CJNative",
+                        "description": "You can set this option to switch the compilation environment",
+                        "enum": [
+                            "CJNative",
+                            "CJVM"
+                        ],
+                        "order": 3
+                    }
+                }
+            },
+            {
+                "title": "ReverseDebug",
+                "properties": {
+                    "cangjie.debug.reverseDebug.enableReverseDebug": {
+                        "type": "boolean",
+                        "default": false,
+                        "order": 1,
+                        "markdownDescription": "%vscode-cangjie-debug.configuration.debug.enableReverseDebug.markdownDescription%"
+                    },
+                    "cangjie.debug.reverseDebug.cacheThreadNumber": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "order": 2,
+                        "markdownDescription": "%vscode-cangjie-debug.configuration.debug.cacheThreadNumber.markdownDescription%",
+                        "default": 1,
+                        "minimum": 0,
+                        "maximum": 1000,
+                        "scope": "reverseDebug"
+                    },
+                    "cangjie.debug.reverseDebug.cacheStackTraceNumber": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "order": 3,
+                        "markdownDescription": "%vscode-cangjie-debug.configuration.debug.cacheStackTraceNumber.markdownDescription%",
+                        "default": 0,
+                        "minimum": 0,
+                        "maximum": 1000,
+                        "scope": "reverseDebug"
+                    },
+                    "cangjie.debug.reverseDebug.cacheScopeTypes": {
+                        "type": "object",
+                        "order": 4,
+                        "properties": {
+                            "Locals": {
+                                "type": "boolean"
+                            },
+                            "Statics": {
+                                "type": "boolean"
+                            },
+                            "Globals": {
+                                "type": "boolean"
+                            },
+                            "Registers": {
+                                "type": "boolean"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "default": {
+                            "Locals": true,
+                            "Statics": false,
+                            "Globals": false,
+                            "Registers": false
+                        },
+                        "markdownDescription": "%vscode-cangjie-debug.configuration.debug.cacheScopeTypes.markdownDescription%",
+                        "scope": "reverseDebug"
+                    },
+                    "cangjie.debug.reverseDebug.cacheVariablesLayer": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "order": 5,
+                        "markdownDescription": "%vscode-cangjie-debug.configuration.debug.cacheVariablesLayer.markdownDescription%",
+                        "default": 1,
+                        "minimum": 0,
+                        "maximum": 100,
+                        "scope": "reverseDebug"
+                    },
+                    "cangjie.debug.reverseDebug.cacheSubVariablesNumber": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "order": 6,
+                        "markdownDescription": "%vscode-cangjie-debug.configuration.debug.cacheSubVariablesNumber.markdownDescription%",
+                        "default": 100,
+                        "minimum": 1,
+                        "maximum": 100000,
+                        "scope": "reverseDebug"
+                    }
+                }
+            }
+        ],
+        "commands": [
+            {
+                "command": "cangjieReverseDebug.openReverseMode",
+                "enablement": "!isCangjieReverseDebugMode && debugState == 'stopped'",
+                "title": "%vscode-cangjie-debug.commands.reverseDebug.openReverseMode.title%",
+                "icon": {
+                    "light": "images/open_switch.svg",
+                    "dark": "images/open_switch.svg"
+                }
+            },
+            {
+                "command": "cangjieReverseDebug.closeReverseMode",
+                "enablement": "isCangjieReverseDebugMode && debugState == 'stopped'",
+                "title": "%vscode-cangjie-debug.commands.reverseDebug.closeReverseMode.title%",
+                "icon": {
+                    "light": "images/close_switch.svg",
+                    "dark": "images/close_switch.svg"
+                }
+            },
+            {
+                "command": "cangjieReverseDebug.continueInReverse",
+                "enablement": "isCangjieReverseDebugMode && debugState == 'stopped'",
+                "title": "%vscode-cangjie-debug.commands.reverseDebug.continueInReverse.title%",
+                "icon": {
+                    "light": "images/resume.svg",
+                    "dark": "images/resume.svg"
+                }
+            },
+            {
+                "command": "cangjieReverseDebug.reverseContinue",
+                "enablement": "isCangjieReverseDebugMode && debugState == 'stopped'",
+                "title": "%vscode-cangjie-debug.commands.reverseDebug.reverseContinue.title%",
+                "icon": {
+                    "light": "images/reverse_resume.svg",
+                    "dark": "images/reverse_resume.svg"
+                }
+            },
+            {
+                "command": "cangjieReverseDebug.stepInReverse",
+                "enablement": "isCangjieReverseDebugMode && debugState == 'stopped'",
+                "title": "%vscode-cangjie-debug.commands.reverseDebug.stepInReverse.title%",
+                "icon": {
+                    "light": "images/step.svg",
+                    "dark": "images/step.svg"
+                }
+            },
+            {
+                "command": "cangjieReverseDebug.reverseStep",
+                "enablement": "isCangjieReverseDebugMode && debugState == 'stopped'",
+                "title": "%vscode-cangjie-debug.commands.reverseDebug.reverseStep.title%",
+                "icon": {
+                    "light": "images/reverse_step.svg",
+                    "dark": "images/reverse_step.svg"
+                }
+            },
+            {
+                "when": "editorLangId == Cangjie",
+                "command": "cangjie.debug.buildAndDebugCurrentFile",
+                "title": "%vscode-cangjie-debug.commands.cangjie.debug.buildAndDebugCurrentFile.title%"
+            },
+            {
+                "when": "editorLangId == Cangjie && isLinux",
+                "command": "cangjie.debug.buildAndDebugCurrentFileByCjVM",
+                "title": "%vscode-cangjie-debug.commands.cangjie.debug.buildAndDebugCurrentFileByCjVM.title%"
+            },
+            {
+                "command": "cangjie.debug.folderReverseBreakpoint",
+                "title": "%vscode-cangjie-debug.commands.cangjie.debug.folderReverseBreakpoint.title%"
+            },
+            {
+                "command": "cangjie.debug.fileReverseBreakpoint",
+                "title": "%vscode-cangjie-debug.commands.cangjie.debug.fileReverseBreakpoint.title%"
+            },
+            {
+                "command": "cangjie.debug.lineReverseBreakpoint",
+                "title": "%vscode-cangjie-debug.commands.cangjie.debug.lineReverseBreakpoint.title%"
+            }
+        ],
+        "menus": {
+            "debug/toolBar": [
+                {
+                    "command": "cangjieReverseDebug.openReverseMode",
+                    "group": "navigation@0",
+                    "when": "enableCangjieReverseDebug && !isCangjieReverseDebugMode"
+                },
+                {
+                    "command": "cangjieReverseDebug.closeReverseMode",
+                    "group": "navigation@0",
+                    "when": "enableCangjieReverseDebug && isCangjieReverseDebugMode"
+                },
+                {
+                    "command": "cangjieReverseDebug.reverseContinue",
+                    "group": "navigation@1",
+                    "when": "enableCangjieReverseDebug"
+                },
+                {
+                    "command": "cangjieReverseDebug.continueInReverse",
+                    "group": "navigation@2",
+                    "when": "enableCangjieReverseDebug"
+                },
+                {
+                    "command": "cangjieReverseDebug.reverseStep",
+                    "group": "navigation@3",
+                    "when": "enableCangjieReverseDebug"
+                },
+                {
+                    "command": "cangjieReverseDebug.stepInReverse",
+                    "group": "navigation@4",
+                    "when": "enableCangjieReverseDebug"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "when": "resourceExtname == .cj",
+                    "command": "cangjie.debug.buildAndDebugCurrentFile",
+                    "group": "other2_debug@1"
+                },
+                {
+                    "when": "resourceExtname == .cj && isLinux",
+                    "command": "cangjie.debug.buildAndDebugCurrentFileByCjVM",
+                    "group": "other2_debug@2"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "cangjie.debug.folderReverseBreakpoint",
+                    "group": "other2_debug@1"
+                },
+                {
+                    "when": "resourceExtname == .cj",
+                    "command": "cangjie.debug.fileReverseBreakpoint",
+                    "group": "other2_debug@3"
+                }
+            ],
+            "editor/context": [
+                {
+                    "when": "editorLangId == Cangjie",
+                    "command": "cangjie.debug.buildAndDebugCurrentFile",
+                    "group": "other2_debug@1"
+                },
+                {
+                    "when": "editorLangId == Cangjie && isLinux",
+                    "command": "cangjie.debug.buildAndDebugCurrentFileByCjVM",
+                    "group": "other2_debug@2"
+                },
+                {
+                    "when": "editorLangId == Cangjie",
+                    "command": "cangjie.debug.lineReverseBreakpoint",
+                    "group": "other2_debug@3"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "cangjie.debug.buildAndDebugCurrentFile",
+                    "when": "false"
+                },
+                {
+                    "command": "cangjie.debug.buildAndDebugCurrentFileByCjVM",
+                    "when": "false"
+                },
+                {
+                    "command": "cangjie.debug.folderReverseBreakpoint",
+                    "when": "false"
+                },
+                {
+                    "command": "cangjie.debug.fileReverseBreakpoint",
+                    "when": "false"
+                },
+                {
+                    "command": "cangjie.debug.lineReverseBreakpoint",
+                    "when": "false"
+                }
+            ]
+        },
+        "viewsContainers": {
+            "panel": [
+                {
+                    "id": "cangjie-debug-ui",
+                    "title": "Cangjie Debug Timeline",
+                    "icon": "images/icon.png"
+                }
+            ]
+        },
+        "views": {
+            "cangjie-debug-ui": [
+                {
+                    "type": "webview",
+                    "id": "cangjie-debug-timeline",
+                    "name": "",
+                    "when": "enableCangjieReverseDebug && inDebugMode"
+                }
+            ]
+        },
+        "breakpoints": [
+            {
+                "language": "Cangjie"
+            },
+            {
+                "language": "java"
+            },
+            {
+                "language": "c"
+            },
+            {
+                "language": "cpp"
+            }
+        ],
+        "taskDefinitions": [
+            {
+                "type": "cangjieDebugBuild",
+                "required": [],
+                "properties": {
+                    "label": {
+                        "type": "string"
+                    },
+                    "cmd": {
+                        "type": "string"
+                    },
+                    "args": {
+                        "type": "array"
+                    }
+                }
+            }
+        ],
+        "debuggers": [
+            {
+                "type": "cangjieDebug",
+                "label": "Cangjie(cjdb) Debug",
+                "languages": [
+                    "Cangjie"
+                ],
+                "configurationAttributes": {
+                    "attach": {
+                        "type": "object",
+                        "default": {},
+                        "required": [
+                            "program"
+                        ],
+                        "properties": {
+                            "program": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.program.description%",
+                                "default": "${workspaceRoot}/main.exe"
+                            },
+                            "processId": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.processId.description%",
+                                "default": ""
+                            },
+                            "cwd": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.cwd.description%",
+                                "default": "."
+                            },
+                            "stopAtEntry": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.stopatentry.description%",
+                                "default": false
+                            },
+                            "externalConsole": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.externalconsole.description%",
+                                "default": false
+                            },
+                            "remote": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.remote.description%",
+                                "default": false
+                            },
+                            "remoteAddress": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.remoteAddress.description%",
+                                "default": ""
+                            },
+                            "remotePlatform": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.remotePlatform.description%",
+                                "default": ""
+                            },
+                            "args": {
+                                "type": "array",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.args.description%",
+                                "default": []
+                            },
+                            "scriptCommands": {
+                                "type": "array",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.scriptCommands.description%",
+                                "default": []
+                            },
+                            "setupCommands": {
+                                "type": "array",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.setupCommands.description%",
+                                "default": []
+                            },
+                            "vmMode": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.vmMode.description%",
+                                "default": false
+                            },
+                            "vmAddress": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.vmAddress.description%",
+                                "default": "127.0.0.1"
+                            },
+                            "vmPort": {
+                                "type": "number",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.vmPort.description%",
+                                "default": 3001
+                            },
+                            "javaRootPath": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.javaRootPath.description%",
+                                "default": ""
+                            },
+                            "environment": {
+                                "type": "object",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.environment.description%",
+                                "patternProperties": {
+                                    ".*": {
+                                        "type": "string"
+                                    }
+                                },
+                                "default": {}
+                            }
+                        }
+                    },
+                    "launch": {
+                        "type": "object",
+                        "default": {},
+                        "required": [
+                            "program"
+                        ],
+                        "properties": {
+                            "program": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.program.description%",
+                                "default": "${workspaceRoot}/main.exe"
+                            },
+                            "cwd": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.cwd.description%",
+                                "default": "."
+                            },
+                            "stopAtEntry": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.stopatentry.description%",
+                                "default": false
+                            },
+                            "externalConsole": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.externalconsole.description%",
+                                "default": false
+                            },
+                            "args": {
+                                "type": "array",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.args.description%",
+                                "default": []
+                            },
+                            "setupCommands": {
+                                "type": "array",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.setupCommands.description%",
+                                "default": []
+                            },
+                            "remote": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.remote.description%",
+                                "default": false
+                            },
+                            "remoteCangjieSdkPath": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.remoteCangjieSdkPath.description%",
+                                "default": ""
+                            },
+                            "remoteFilePath": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.remoteFilePath.description%",
+                                "default": ""
+                            },
+                            "remoteAddress": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.remoteAddress.description%",
+                                "default": ""
+                            },
+                            "remotePlatform": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.remotePlatform.description%",
+                                "default": ""
+                            },
+                            "scriptCommands": {
+                                "type": "array",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.scriptCommands.description%",
+                                "default": []
+                            },
+                            "buildBeforeLaunch": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.buildBeforeLaunch.description%",
+                                "default": false
+                            },
+                            "debugMacro": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.debugMacro.description%",
+                                "default": false
+                            },
+                            "vmMode": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.vmMode.description%",
+                                "default": false
+                            },
+                            "vmAddress": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.vmAddress.description%",
+                                "default": "127.0.0.1"
+                            },
+                            "vmPort": {
+                                "type": "number",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.vmPort.description%",
+                                "default": 3001
+                            },
+                            "javaRootPath": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.javaRootPath.description%",
+                                "default": ""
+                            },
+                            "environment": {
+                                "type": "object",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.environment.description%",
+                                "patternProperties": {
+                                    ".*": {
+                                        "type": "string"
+                                    }
+                                },
+                                "default": {}
+                            }
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}

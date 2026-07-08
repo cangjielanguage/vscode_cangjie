@@ -1,0 +1,1184 @@
+{
+    "name": "cangjie",
+    "displayName": "Cangjie",
+    "description": "VS Code support of Cangjie-language",
+    "version": "0.36.5",
+    "publisher": "IDE-Innovation-Lab",
+    "icon": "images/cangjie_icon.png",
+    "repository": "https://gitcode.com/Cangjie/vscode_cangjie",
+    "engines": {
+        "vscode": "^1.65.0"
+    },
+    "categories": [
+        "Programming Languages",
+        "Debuggers"
+    ],
+    "keywords": [
+        "Cangjie"
+    ],
+    "activationEvents": [
+        "onLanguage:Cangjie",
+        "onCommand:cangjie.debug.buildAndDebugCurrentFile",
+        "onDebugResolve:cangjieDebug",
+        "onCommand:cangjie.project.create",
+        "onCommand:cangjie.project.create.view",
+        "onCommand:cangjie.cjlintFloder",
+        "onCommand:cangjie.cjcovFloder",
+        "onCommand:extension.formatCjFolder",
+        "onCommand:cangjieBuild.editBuildConfiguration",
+        "onCommand:cangjie.root.project",
+        "workspaceContains:**/*.cj"
+    ],
+    "main": "./out/extension",
+    "scripts": {
+        "vscode:prepublish": "npm run webpack",
+        "webpack": "webpack --mode production",
+        "webpack-dev": "webpack --mode development --config webpack.dev.js",
+        "compile": "tsc -p ./",
+        "lint": "tslint -p ./",
+        "watch": "tsc -watch -p ./"
+    },
+    "dependencies": {
+        "@vscode/debugadapter": "1.68.0",
+        "vscode-languageclient": "9.0.1"
+    },
+    "overrides": {
+        "semver": "7.5.4"
+    },
+    "devDependencies": {
+        "@types/expect": "24.3.0",
+        "@types/glob": "^7.1.1",
+        "@types/node": "^14.14.41",
+        "@types/vscode": "^1.65.0",
+        "clean-webpack-plugin": "^3.0.0",
+        "glob": "^7.1.4",
+        "jest": "^29.4.0",
+        "jest-junit": "^15.0.0",
+        "keytar": "^7.9.0",
+        "source-map-support": "^0.5.12",
+        "terser-webpack-plugin": "^4.2.2",
+        "ts-loader": "^9.4.1",
+        "tslint": "^5.16.0",
+        "typescript": "^4.2.3",
+        "vsce": "^1.99.0",
+        "vscode-test": "1.6.1",
+        "webpack": "^5.72.1",
+        "webpack-cli": "^4.7.2",
+        "webpack-merge": "^5.1.4",
+        "@babel/core": "^7.21.0",
+        "@babel/preset-env": "^7.20.2",
+        "@babel/preset-typescript": "^7.18.6",
+        "@types/jest": "^29.4.0",
+        "babel-jest": "^29.4.1"
+    },
+    "contributes": {
+        "languages": [
+            {
+                "id": "Cangjie",
+                "aliases": [
+                    "Cangjie"
+                ],
+                "firstLine": "^/[/*].*-\\*-\\s*C\\+\\+\\s*-\\*-.*",
+                "extensions": [
+                    ".cj",
+                    ".cj.macrocall"
+                ],
+                "configuration": "./syntaxes/language-configuration.json",
+                "icon": {
+                  "light": "./images/cangjie_icon.png",
+                  "dark": "./images/cangjie_icon.png"
+                }
+            },
+            {
+                "id": "dap.disassembly",
+                "aliases": [
+                    "Disassembly"
+                ],
+                "extensions": [
+                    ".disasm"
+                ]
+            }
+        ],
+        "grammars": [
+            {
+                "language": "Cangjie",
+                "scopeName": "source.cj",
+                "path": "./syntaxes/Cangjie.tmLanguage.json"
+            },
+            {
+                "language": "dap.disassembly",
+                "scopeName": "source.cj.disassembly",
+                "path": "./syntaxes/dap-disassembly.json"
+            }
+        ],
+        "configuration": [
+            {
+                "type": "object",
+                "title": "Cangjie Language Support",
+                "properties": {
+                    "CangjieSdkPath.CJNativeBackend": {
+                        "type": "string",
+                        "default": "",
+                        "order": 1,
+                        "markdownDescription": "The absolute path to CJNative-sdk, e.g.: /path/to/CJNative/cangjie. You can configure the SDK by accessing the [SDK Configuration](command:cangjie.sdk.manager.view)."
+                    },
+                    "CangjieSdkPath.CJVMBackend": {
+                        "type": "string",
+                        "default": "",
+                        "description": "(Linux Only)The absolute path to CJVM-sdk, e.g.: /path/to/CJVM/cangjie",
+                        "order": 2
+                    },
+                    "CangjieSdk.Option": {
+                        "type": "string",
+                        "default": "CJNative",
+                        "description": "You can set this option to switch the compilation environment",
+                        "enum": [
+                            "CJNative",
+                            "CJVM"
+                        ],
+                        "order": 3
+                    },
+                    "CangjieLSPServer.Arguments": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": [],
+                        "description": "Arguments for Cangjie language server.",
+                        "order": 4
+                    },
+                    "CrossLanguage.CppDirectory": {
+                        "type": "string",
+                        "default": "",
+                        "description": "C source code directory,e.g.: /path/cpp/",
+                        "order": 5
+                    },
+                    "CangjieLog.Telemetry": {
+                        "type": "boolean",
+                        "default": false,
+                        "markdownDescription": "Enable Cangjie LSP crash data to be collected by plugin. You can report the issues on the [community website](command:cangjie.lsp.feedback). ",
+                        "order": 6
+                    },
+                    "Cangjie.CodeCheckOnSave": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Enable do CodeCheck in the folder where the file is currently saved",
+                        "order": 7
+                    },
+                    "Cangjie.CjpmInstall.Custom": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Custom the cjpm install option",
+                        "order": 8
+                    },
+                    "Cangjie.Root.Cjpm.Path": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Custom project the root cjpm.toml path",
+                        "order": 9
+                    }
+                }
+            },
+            {
+                "title": "Debug",
+                "properties": {
+                    "cangjie.debug.tools.pythonPath": {
+                        "type": "string",
+                        "default": "",
+                        "description": "%vscode-cangjie-debug.configuration.debug.tools.pythonPath.markdownDescription%",
+                        "order": 0
+                    },
+                    "cangjie.debug.reverseDebug.enableReverseDebug": {
+                        "type": "boolean",
+                        "default": false,
+                        "order": 1,
+                        "markdownDescription": "%vscode-cangjie-debug.configuration.debug.enableReverseDebug.markdownDescription%"
+                    },
+                    "cangjie.debug.reverseDebug.cacheThreadNumber": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "order": 2,
+                        "markdownDescription": "%vscode-cangjie-debug.configuration.debug.cacheThreadNumber.markdownDescription%",
+                        "default": 1,
+                        "minimum": 0,
+                        "maximum": 1000,
+                        "scope": "reverseDebug"
+                    },
+                    "cangjie.debug.reverseDebug.cacheStackTraceNumber": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "order": 3,
+                        "markdownDescription": "%vscode-cangjie-debug.configuration.debug.cacheStackTraceNumber.markdownDescription%",
+                        "default": 0,
+                        "minimum": 0,
+                        "maximum": 1000,
+                        "scope": "reverseDebug"
+                    },
+                    "cangjie.debug.reverseDebug.cacheScopeTypes": {
+                        "type": "object",
+                        "order": 4,
+                        "properties": {
+                            "Locals": {
+                                "type": "boolean"
+                            },
+                            "Statics": {
+                                "type": "boolean"
+                            },
+                            "Globals": {
+                                "type": "boolean"
+                            },
+                            "Registers": {
+                                "type": "boolean"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "default": {
+                            "Locals": true,
+                            "Statics": false,
+                            "Globals": false,
+                            "Registers": false
+                        },
+                        "markdownDescription": "%vscode-cangjie-debug.configuration.debug.cacheScopeTypes.markdownDescription%",
+                        "scope": "reverseDebug"
+                    },
+                    "cangjie.debug.reverseDebug.cacheVariablesLayer": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "order": 5,
+                        "markdownDescription": "%vscode-cangjie-debug.configuration.debug.cacheVariablesLayer.markdownDescription%",
+                        "default": 1,
+                        "minimum": 0,
+                        "maximum": 100,
+                        "scope": "reverseDebug"
+                    },
+                    "cangjie.debug.reverseDebug.cacheSubVariablesNumber": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "order": 6,
+                        "markdownDescription": "%vscode-cangjie-debug.configuration.debug.cacheSubVariablesNumber.markdownDescription%",
+                        "default": 100,
+                        "minimum": 1,
+                        "maximum": 100000,
+                        "scope": "reverseDebug"
+                    },
+                    "cangjie.debug.log.enableDAPCommunicationLog": {
+                        "type": "boolean",
+                        "default": false,
+                        "order": 7,
+                        "markdownDescription": "%vscode-cangjie-debug.configuration.debug.enableDAPCommunicationLog.markdownDescription%"
+                    }
+                }
+            }
+        ],
+        "commands": [
+            {
+                "command": "cangjieReverseDebug.openReverseMode",
+                "enablement": "!isCangjieReverseDebugMode && debugState == 'stopped'",
+                "title": "%vscode-cangjie-debug.commands.reverseDebug.openReverseMode.title%",
+                "icon": {
+                    "light": "images/open_switch.svg",
+                    "dark": "images/open_switch.svg"
+                }
+            },
+            {
+                "command": "cangjieReverseDebug.closeReverseMode",
+                "enablement": "isCangjieReverseDebugMode && debugState == 'stopped'",
+                "title": "%vscode-cangjie-debug.commands.reverseDebug.closeReverseMode.title%",
+                "icon": {
+                    "light": "images/close_switch.svg",
+                    "dark": "images/close_switch.svg"
+                }
+            },
+            {
+                "command": "cangjieReverseDebug.continueInReverse",
+                "enablement": "isCangjieReverseDebugMode && debugState == 'stopped'",
+                "title": "%vscode-cangjie-debug.commands.reverseDebug.continueInReverse.title%",
+                "icon": {
+                    "light": "images/resume.svg",
+                    "dark": "images/resume.svg"
+                }
+            },
+            {
+                "command": "cangjieReverseDebug.reverseContinue",
+                "enablement": "isCangjieReverseDebugMode && debugState == 'stopped'",
+                "title": "%vscode-cangjie-debug.commands.reverseDebug.reverseContinue.title%",
+                "icon": {
+                    "light": "images/reverse_resume.svg",
+                    "dark": "images/reverse_resume.svg"
+                }
+            },
+            {
+                "command": "cangjieReverseDebug.stepInReverse",
+                "enablement": "isCangjieReverseDebugMode && debugState == 'stopped'",
+                "title": "%vscode-cangjie-debug.commands.reverseDebug.stepInReverse.title%",
+                "icon": {
+                    "light": "images/step.svg",
+                    "dark": "images/step.svg"
+                }
+            },
+            {
+                "command": "cangjieReverseDebug.reverseStep",
+                "enablement": "isCangjieReverseDebugMode && debugState == 'stopped'",
+                "title": "%vscode-cangjie-debug.commands.reverseDebug.reverseStep.title%",
+                "icon": {
+                    "light": "images/reverse_step.svg",
+                    "dark": "images/reverse_step.svg"
+                }
+            },
+            {
+                "when": "editorLangId == Cangjie",
+                "command": "cangjie.debug.buildAndDebugCurrentFile",
+                "title": "%vscode-cangjie-debug.commands.cangjie.debug.buildAndDebugCurrentFile.title%"
+            },
+            {
+                "when": "editorLangId == Cangjie",
+                "command": "cangjie.debug.buildAndDebugCurrentFileByCjVM",
+                "title": "%vscode-cangjie-debug.commands.cangjie.debug.buildAndDebugCurrentFileByCjVM.title%"
+            },
+            {
+                "command": "cangjie.debug.folderReverseBreakpoint",
+                "title": "%vscode-cangjie-debug.commands.cangjie.debug.folderReverseBreakpoint.title%"
+            },
+            {
+                "command": "cangjie.debug.fileReverseBreakpoint",
+                "title": "%vscode-cangjie-debug.commands.cangjie.debug.fileReverseBreakpoint.title%"
+            },
+            {
+                "command": "cangjie.debug.lineReverseBreakpoint",
+                "title": "%vscode-cangjie-debug.commands.cangjie.debug.lineReverseBreakpoint.title%"
+            },
+            {
+                "command": "cangjie.project.create",
+                "title": "Create Cangjie Project ",
+                "category": "Cangjie",
+                "icon": "$(add)"
+            },
+            {
+                "command": "cangjie.project.create.view",
+                "title": "Create Cangjie Project View",
+                "category": "Cangjie",
+                "icon": "$(add)"
+            },
+            {
+                "command": "extension.formatCj",
+                "title": "[Cangjie] Format"
+            },
+            {
+                "command": "extension.formatCjFolder",
+                "title": "[Cangjie] Format"
+            },
+            {
+                "command": "cangjie.build.helper",
+                "title": "Build Helper",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.parallel",
+                "title": "Parallelled Build",
+                "category": "Cangjie",
+                "icon": "$(run)"
+            },
+            {
+                "command": "cangjie.build.verbose",
+                "title": "Build With Verbose",
+                "category": "Cangjie",
+                "icon": "$(mirror)"
+            },
+            {
+                "command": "cangjie.build.coverage",
+                "title": "Build With Coverage",
+                "category": "Cangjie",
+                "icon": "$(debug-coverage)"
+            },
+            {
+                "command": "cangjie.build.debug",
+                "title": "Build With Debug",
+                "category": "Cangjie",
+                "icon": "$(debug-alt)"
+            },
+            {
+                "command": "cangjie.build.alias",
+                "title": "Build With Alias",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.codeCheck",
+                "title": "Build With CodeCheck",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.multiParameter",
+                "title": "Build With MultiParameter",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.run",
+                "title": "Run Code",
+                "category": "Cangjie",
+                "icon": "$(run)"
+            },
+            {
+                "command": "cangjie.debug",
+                "title": "Debug Code",
+                "category": "Cangjie",
+                "icon": "$(debug)"
+            },
+            {
+                "command": "cangjieBuild.editBuildConfiguration",
+                "title": "Edit Configuration (UI)",
+                "category": "Cangjie",
+                "icon": "$(edit)"
+            },
+            {
+                "command": "cangjie.build.update",
+                "title": "Update Cjpm.toml",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.clean",
+                "title": "Clean Build Result",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.test",
+                "title": "Execute Test File",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.test.noRun",
+                "title": "Test With NoRun",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.test.skipBuild",
+                "title": "Test With SkipBuild",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.test.jobs",
+                "title": "Test With Jobs",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.check",
+                "title": "Check Circular Dependencies",
+                "category": "Cangjie"
+            },
+            {
+                "command": "Cangjie.BuildArg.Json.Edit",
+                "title": "Build Args Edit",
+                "category": "Cangjie"
+            },
+            {
+                "command": "Cangjie.Cjpm.Toml.Edit",
+                "title": "Cjpm Config Edit",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.multiArgsCheck",
+                "title": "Test With MultiParameter",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.cross",
+                "title": "Build With Cross",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.condition",
+                "title": "Build With CustomizedOption",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.increment",
+                "title": "Build With Increment",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.incrementWithDebug",
+                "title": "Build With IncrementWithDebug",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.targetDir",
+                "title": "Build With TargetDir",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.jobs",
+                "title": "Build With Jobs",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.debugMacro",
+                "title": "Build With DebugMacro",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.install.verbose",
+                "title": "Install With Verbose",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.install.debug",
+                "title": "Install With Debug",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.install.rootPath",
+                "title": "Install With RootPath",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.install.targetDir",
+                "title": "Install With TargetDir",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.install.alias",
+                "title": "Install With Alias",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.install.git",
+                "title": "Install With Git",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.install.list",
+                "title": "Install With List",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.install.skipBuild",
+                "title": "Install With SkipBuild",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.install.jobs",
+                "title": "Install With Jobs",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.install.customizedOption",
+                "title": "Install With CustomizedOption",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.install.skipScript",
+                "title": "Install With SkipScript",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.install.customParameter",
+                "title": "Install With CustomParameter",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.unstall.binary",
+                "title": "Uninstall Binary",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.unstall.root",
+                "title": "Uninstall With Root",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.cjlint",
+                "title": "[Cangjie] CodeCheck",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.cjlintFloder",
+                "title": "[Cangjie] CodeCheck",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.cjcov",
+                "title": "[Cangjie] Coverage",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.cjcovFloder",
+                "title": "[Cangjie] Coverage",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.toml.test",
+                "title": "[Cangjie] Toml",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.require.addRequireLibs",
+                "title": "Add Require Libs",
+                "category": "Cangjie",
+                "icon": "$(add)"
+            },
+            {
+                "command": "cangjie.require.removeRequireLibs",
+                "title": "Remove Require Libs",
+                "category": "Cangjie",
+                "icon": "$(remove)"
+            },
+            {
+                "command": "cangjie.require.uiSetting",
+                "title": "Configure Required Libs",
+                "category": "Cangjie",
+                "icon": "$(edit)"
+            },
+            {
+                "command": "cangjie.lsp.reLaunch",
+                "title": "reLaunch LSPServer",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.lsp.updateState",
+                "title": "update LSPServer state",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.lsp.condition",
+                "title": "Run LSPServer With ConditionOption",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build",
+                "title": "Build Cangjie Project",
+                "category": "Cangjie",
+                "icon": {
+                    "dark": "images/hammer_dark.svg",
+                    "light": "images/hammer_light.svg"
+                }
+            },
+            {
+                "command": "cangjie.openReadme",
+                "title": "Open Cangjie Readme",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.file.create",
+                "title": "New Cangjie File...",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.root.project",
+                "title": "Custom Project Root Cjpm Toml",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.sdk.manager.view",
+                "title": "Configure Cangjie SDK",
+                "category": "Cangjie"
+            }
+        ],
+        "keybindings": [
+            {
+                "when": "editorTextFocus",
+                "command": "extension.formatCj",
+                "key": "ctrl+alt+f"
+            },
+            {
+                "when": "editorTextFocus",
+                "command": "cangjie.cjlint",
+                "key": "ctrl+alt+c"
+            },
+            {
+                "when": "editorTextFocus",
+                "command": "cangjie.cjcov",
+                "key": "ctrl+alt+g"
+            }
+        ],
+        "menus": {
+            "debug/toolBar": [
+                {
+                    "command": "cangjieReverseDebug.openReverseMode",
+                    "group": "navigation@0",
+                    "when": "enableCangjieReverseDebug && !isCangjieReverseDebugMode"
+                },
+                {
+                    "command": "cangjieReverseDebug.closeReverseMode",
+                    "group": "navigation@0",
+                    "when": "enableCangjieReverseDebug && isCangjieReverseDebugMode"
+                },
+                {
+                    "command": "cangjieReverseDebug.reverseContinue",
+                    "group": "navigation@1",
+                    "when": "enableCangjieReverseDebug"
+                },
+                {
+                    "command": "cangjieReverseDebug.continueInReverse",
+                    "group": "navigation@2",
+                    "when": "enableCangjieReverseDebug"
+                },
+                {
+                    "command": "cangjieReverseDebug.reverseStep",
+                    "group": "navigation@3",
+                    "when": "enableCangjieReverseDebug"
+                },
+                {
+                    "command": "cangjieReverseDebug.stepInReverse",
+                    "group": "navigation@4",
+                    "when": "enableCangjieReverseDebug"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "when": "resourceExtname == .cj",
+                    "command": "cangjie.debug.buildAndDebugCurrentFile",
+                    "group": "other2_debug@1"
+                },
+                {
+                    "when": "resourceExtname == .cj",
+                    "command": "cangjie.debug.buildAndDebugCurrentFileByCjVM",
+                    "group": "other2_debug@2"
+                },
+                {
+                    "when": "resourceExtname == .cj || explorerResourceIsFolder",
+                    "command": "extension.formatCjFolder",
+                    "group": "cangjieGroup"
+                },
+                {
+                    "when": "resourceExtname == .cj || explorerResourceIsFolder",
+                    "command": "cangjie.cjlintFloder",
+                    "group": "cangjieGroup"
+                },
+                {
+                    "when": "resourceExtname == .cj || explorerResourceIsFolder",
+                    "command": "cangjie.cjcovFloder",
+                    "group": "cangjieGroup"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "cangjie.debug.folderReverseBreakpoint",
+                    "group": "other2_debug@1"
+                },
+                {
+                    "when": "resourceExtname == .cj",
+                    "command": "cangjie.debug.fileReverseBreakpoint",
+                    "group": "other2_debug@3"
+                }
+            ],
+            "editor/context": [
+                {
+                    "when": "editorLangId == Cangjie",
+                    "command": "cangjie.debug.buildAndDebugCurrentFile",
+                    "group": "other2_debug@1"
+                },
+                {
+                    "when": "editorLangId == Cangjie",
+                    "command": "cangjie.debug.buildAndDebugCurrentFileByCjVM",
+                    "group": "other2_debug@2"
+                },
+                {
+                    "when": "editorLangId == Cangjie",
+                    "command": "cangjie.debug.lineReverseBreakpoint",
+                    "group": "other2_debug@3"
+                },
+                {
+                    "when": "resourceExtname == .cj && focusedView != 'workbench.panel.output'",
+                    "command": "extension.formatCj",
+                    "group": "cangjieGroup"
+                },
+                {
+                    "when": "resourceExtname == .cj && focusedView != 'workbench.panel.output'",
+                    "command": "cangjie.cjlint",
+                    "group": "cangjieGroup"
+                },
+                {
+                    "when": "resourceExtname == .cj && focusedView != 'workbench.panel.output'",
+                    "command": "cangjie.cjcov",
+                    "group": "cangjieGroup"
+                },
+                {
+                    "when": "resourceExtname == .toml && focusedView != 'workbench.panel.output'",
+                    "command": "cangjie.toml.test",
+                    "group": "cangjieGroup"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "cangjie.require.uiSetting",
+                    "when": "view == cangjieLibrary",
+                    "group": "navigation@0"
+                }
+            ],
+            "editor/title": [
+                {
+                    "command": "cangjie.run",
+                    "when": "resourceExtname == .cj && cangjie.run.state",
+                    "group": "navigation@0"
+                },
+                {
+                    "command": "cangjie.debug",
+                    "group": "navigation@1",
+                    "when": "resourceExtname == .cj && cangjie.debug.state"
+                },
+                {
+                    "command": "cangjie.build",
+                    "when": "resourceExtname == .cj",
+                    "group": "navigation@2"
+                },
+                {
+                    "command": "cangjieBuild.editBuildConfiguration",
+                    "group": "navigation@3"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "cangjie.project.create",
+                    "when": "isLinux || isWindows || isMac"
+                },
+                {
+                    "command": "cangjie.project.create.view",
+                    "when": "isLinux || isWindows|| isMac"
+                },
+                {
+                    "command": "cangjie.build.cross",
+                    "when": "!cangjieSdk.CJVM"
+                },
+                {
+                    "command": "cangjie.require.addRequireLibs",
+                    "when": "false"
+                },
+                {
+                    "command": "cangjie.require.removeRequireLibs",
+                    "when": "false"
+                },
+                {
+                    "command": "cangjie.build.incrementWithDebug",
+                    "when": "false"
+                },
+                {
+                    "command": "cangjie.lsp.reLaunch",
+                    "when": "false"
+                },
+                {
+                    "command": "cangjie.lsp.updateState",
+                    "when": "false"
+                },
+                {
+                    "command": "cangjie.debug.buildAndDebugCurrentFile",
+                    "when": "false"
+                },
+                {
+                    "command": "cangjie.debug.buildAndDebugCurrentFileByCjVM",
+                    "when": "false"
+                },
+                {
+                    "command": "cangjie.debug.folderReverseBreakpoint",
+                    "when": "false"
+                },
+                {
+                    "command": "cangjie.debug.fileReverseBreakpoint",
+                    "when": "false"
+                },
+                {
+                    "command": "cangjie.debug.lineReverseBreakpoint",
+                    "when": "false"
+                },
+                {
+                    "command": "cangjie.sdk.manager.view",
+                    "when": "isLinux || isWindows|| isMac"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "cangjie.require.addRequireLibs",
+                    "alt": "",
+                    "when": "view == cangjieLibrary && viewItem == NodeDataTitle",
+                    "group": "inline@0"
+                },
+                {
+                    "command": "cangjie.require.removeRequireLibs",
+                    "alt": "",
+                    "when": "view == cangjieLibrary && viewItem == NodeDataItem",
+                    "group": "inline"
+                }
+            ]
+        },
+        "viewsContainers": {
+            "panel": [
+                {
+                    "id": "cangjie-debug-ui",
+                    "title": "Cangjie Debug Timeline",
+                    "icon": "images/icon.png"
+                }
+            ]
+        },
+        "views": {
+            "explorer": [
+                {
+                    "id": "cangjieLibrary",
+                    "name": "Cangjie Library"
+                }
+            ],
+            "cangjie-debug-ui": [
+                {
+                    "type": "webview",
+                    "id": "cangjie-debug-timeline",
+                    "name": "",
+                    "when": "enableCangjieReverseDebug && inDebugMode"
+                }
+            ]
+        },
+        "breakpoints": [
+            {
+                "language": "Cangjie"
+            },
+            {
+                "language": "java"
+            },
+            {
+                "language": "c"
+            },
+            {
+                "language": "cpp"
+            }
+        ],
+        "taskDefinitions": [
+            {
+                "type": "cangjieDebugBuild",
+                "required": [],
+                "properties": {
+                    "label": {
+                        "type": "string"
+                    },
+                    "cmd": {
+                        "type": "string"
+                    },
+                    "args": {
+                        "type": "array"
+                    }
+                }
+            }
+        ],
+        "debuggers": [
+            {
+                "type": "cangjieDebug",
+                "label": "Cangjie(cjdb) Debug",
+                "languages": [
+                    "Cangjie"
+                ],
+                "configurationAttributes": {
+                    "attach": {
+                        "type": "object",
+                        "default": {},
+                        "required": [
+                            "program"
+                        ],
+                        "properties": {
+                            "program": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.program.description%",
+                                "default": "${workspaceRoot}/main.exe"
+                            },
+                            "processId": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.processId.description%",
+                                "default": ""
+                            },
+                            "cwd": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.cwd.description%",
+                                "default": "."
+                            },
+                            "stopAtEntry": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.stopatentry.description%",
+                                "default": false
+                            },
+                            "externalConsole": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.externalconsole.description%",
+                                "default": false
+                            },
+                            "remote": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.remote.description%",
+                                "default": false
+                            },
+                            "remoteAddress": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.remoteAddress.description%",
+                                "default": ""
+                            },
+                            "remotePlatform": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.remotePlatform.description%",
+                                "default": ""
+                            },
+                            "args": {
+                                "type": "array",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.args.description%",
+                                "default": []
+                            },
+                            "scriptCommands": {
+                                "type": "array",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.scriptCommands.description%",
+                                "default": []
+                            },
+                            "setupCommands": {
+                                "type": "array",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.attach.properties.setupCommands.description%",
+                                "default": []
+                            },
+                            "vmMode": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.vmMode.description%",
+                                "default": false
+                            },
+                            "vmAddress": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.vmAddress.description%",
+                                "default": "127.0.0.1"
+                            },
+                            "vmPort": {
+                                "type": "number",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.vmPort.description%",
+                                "default": 3001
+                            },
+                            "javaRootPath": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.javaRootPath.description%",
+                                "default": ""
+                            },
+                            "env": {
+                                "type": "object",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.env.description%",
+                                "patternProperties": {
+                                    ".*": {
+                                        "type": "string"
+                                    }
+                                },
+                                "default": {}
+                            }
+                        }
+                    },
+                    "launch": {
+                        "type": "object",
+                        "default": {},
+                        "required": [
+                            "program"
+                        ],
+                        "properties": {
+                            "program": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.program.description%",
+                                "default": "${workspaceRoot}/main.exe"
+                            },
+                            "cwd": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.cwd.description%",
+                                "default": "."
+                            },
+                            "stopAtEntry": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.stopatentry.description%",
+                                "default": false
+                            },
+                            "externalConsole": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.externalconsole.description%",
+                                "default": false
+                            },
+                            "args": {
+                                "type": "array",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.args.description%",
+                                "default": []
+                            },
+                            "setupCommands": {
+                                "type": "array",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.setupCommands.description%",
+                                "default": []
+                            },
+                            "remote": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.remote.description%",
+                                "default": false
+                            },
+                            "remoteCangjieSdkPath": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.remoteCangjieSdkPath.description%",
+                                "default": ""
+                            },
+                            "remoteFilePath": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.remoteFilePath.description%",
+                                "default": ""
+                            },
+                            "remoteAddress": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.remoteAddress.description%",
+                                "default": ""
+                            },
+                            "remotePlatform": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.remotePlatform.description%",
+                                "default": ""
+                            },
+                            "scriptCommands": {
+                                "type": "array",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.scriptCommands.description%",
+                                "default": []
+                            },
+                            "buildBeforeLaunch": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.buildBeforeLaunch.description%",
+                                "default": false
+                            },
+                            "debugMacro": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.debugMacro.description%",
+                                "default": false
+                            },
+                            "vmMode": {
+                                "type": "boolean",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.vmMode.description%",
+                                "default": false
+                            },
+                            "vmAddress": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.vmAddress.description%",
+                                "default": "127.0.0.1"
+                            },
+                            "vmPort": {
+                                "type": "number",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.vmPort.description%",
+                                "default": 3001
+                            },
+                            "javaRootPath": {
+                                "type": "string",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.javaRootPath.description%",
+                                "default": ""
+                            },
+                            "env": {
+                                "type": "object",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.properties.env.description%",
+                                "patternProperties": {
+                                    ".*": {
+                                        "type": "string"
+                                    }
+                                },
+                                "default": {}
+                            },
+                            "startupCommands": {
+                                "type": "array",
+                                "description": "%vscode-cangjie-debug.debuggers.configurationattributes.launch.properties.startupCommands.description%",
+                                "default": []
+                            }
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}

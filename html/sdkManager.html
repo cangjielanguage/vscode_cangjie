@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Configure SDK</title>
+  <style>
+      body {
+          background-color: var(--vscode-editor-background);
+          color: var(--vscode-editor-foreground);
+          font-family: var(--vscode-font-family), 'Segoe UI', sans-serif;
+          padding: 40px;
+          transition: background-color 0.2s, color 0.2s;
+      }
+
+      h2 {
+          color: var(--vscode-editor-foreground);
+          font-weight: 400;
+          border-bottom: 1px solid var(--vscode-panel-border);
+          padding-bottom: 10px;
+      }
+
+      .container {
+          width: 100%;
+          background-color: var(--vscode-sideBar-background);
+          padding: 20px;
+          border: 1px solid var(--vscode-widget-border);
+          border-radius: 5px;
+          max-width: 750px;
+          margin-bottom: 20px;
+      }
+
+      .section-title {
+          color: var(--vscode-textLink-foreground);
+          margin-top: 0;
+          font-size: 16px;
+          margin-bottom: 15px;
+      }
+
+      .form-group {
+          margin-bottom: 15px;
+      }
+
+      label {
+          display: block;
+          margin-bottom: 8px;
+          font-size: 14px;
+          color: var(--vscode-descriptionForeground);
+      }
+
+      .path-selector {
+          display: flex;
+          gap: 10px;
+          margin-top: 10px;
+          margin-bottom: 10px;
+      }
+
+      input[type="text"] {
+          width: 100%;
+          padding: 8px 12px;
+          background-color: var(--vscode-input-background);
+          color: var(--vscode-input-foreground);
+          border: 1px solid var(--vscode-input-border, transparent);
+          border-radius: 3px;
+          outline: none;
+          box-sizing: border-box;
+          font-size: 13px;
+      }
+
+      .path-selector input[type="text"] {
+          margin-bottom: 0;
+          flex-grow: 1;
+      }
+
+      input[type="text"]:focus {
+          border-color: var(--vscode-focusBorder);
+          outline: 1px solid var(--vscode-focusBorder);
+      }
+
+      button {
+          background-color: var(--vscode-button-background);
+          color: var(--vscode-button-foreground);
+          border: none;
+          padding: 8px 16px;
+          border-radius: 3px;
+          cursor: pointer;
+          font-size: 14px;
+          white-space: nowrap;
+      }
+
+      button:hover {
+          background-color: var(--vscode-button-hoverBackground);
+      }
+
+      button.secondary {
+          background-color: var(--vscode-button-secondaryBackground);
+          color: var(--vscode-button-secondaryForeground);
+      }
+
+      button.secondary:hover {
+          background-color: var(--vscode-button-secondaryHoverBackground);
+      }
+
+      .custom-select {
+          position: relative;
+          width: 85%;
+          font-size: 13px;
+          user-select: none;
+      }
+
+      .custom-select-trigger {
+          padding: 8px 12px;
+          background-color: var(--vscode-input-background);
+          color: var(--vscode-input-foreground);
+          border: 1px solid var(--vscode-input-border, transparent);
+          border-radius: 3px;
+          cursor: pointer;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-grow: 1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+      }
+
+      .custom-select-trigger:focus,
+      .custom-select.active .custom-select-trigger {
+          border-color: var(--vscode-focusBorder);
+          outline: 1px solid var(--vscode-focusBorder);
+      }
+
+      .custom-select-trigger::after {
+          content: '';
+          display: inline-block;
+          width: 0;
+          height: 0;
+          margin-left: 8px;
+          vertical-align: middle;
+          border-top: 4px solid var(--vscode-editor-foreground);
+          border-right: 4px solid transparent;
+          border-left: 4px solid transparent;
+          transition: transform 0.2s ease;
+      }
+
+      .custom-select.active .custom-select-trigger::after {
+          transform: rotate(180deg);
+      }
+
+      .custom-select-options {
+          position: absolute;
+          top: calc(100% + 0px);
+          left: 0;
+          right: 0;
+          background-color: var(--vscode-dropdown-background);
+          border: 1px solid var(--vscode-dropdown-border);
+          border-radius: 3px;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+          z-index: 100;
+          display: none;
+          max-height: 200px;
+          overflow-y: auto;
+          padding: 4px 0;
+      }
+
+      .custom-select.active .custom-select-options {
+          display: block;
+      }
+
+      .custom-option {
+          padding: 6px 12px;
+          color: var(--vscode-dropdown-foreground);
+          cursor: pointer;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+      }
+
+      .custom-option:hover {
+          background-color: var(--vscode-list-hoverBackground);
+      }
+
+      .custom-option.selected {
+          background-color: var(--vscode-list-activeSelectionBackground);
+          color: var(--vscode-list-activeSelectionForeground);
+      }
+
+      /* Message display area styles */
+      .message-area {
+          margin-top: 10px;
+          margin-bottom: 15px;
+          padding: 8px 12px;
+          border-radius: 3px;
+          font-size: 13px;
+          display: none;
+          word-break: break-word;
+      }
+
+      .message-area.info {
+          background-color: var(--vscode-statusBarItem-activeBackground);
+          color: var(--vscode-statusBarItem-foreground);
+      }
+
+      .message-area.error {
+          background-color: var(--vscode-errorForeground);
+          color: var(--vscode-editor-background);
+      }
+
+      .message-area.success {
+          background-color: var(--vscode-editorGutter-addedBackground);
+          color: var(--vscode-editor-background);
+      }
+
+      .select-sdk-option {
+          width: 96%;
+          display: inline-block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+      }
+
+      .del-sdk-icon {
+          width: 4%;
+          margin-left: 5px;
+          position: absolute;
+          user-select: none;
+          cursor: pointer;
+      }
+
+      dialog {
+          padding: 20px;
+          border: 1px solid var(--vscode-widget-border);
+          background-color: var(--vscode-editor-background);
+          color: var(--vscode-editor-foreground);
+          border-radius: 4px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      dialog::backdrop {
+          background: rgba(0, 0, 0, 0.5);
+      }
+
+      dialog button {
+          background-color: var(--vscode-button-background);
+          color: var(--vscode-button-foreground);
+          border: none;
+          padding: 4px 12px;
+          cursor: pointer;
+          border-radius: 2px;
+      }
+
+      dialog button:hover {
+          background-color: var(--vscode-button-hoverBackground);
+      }
+
+      .delete-cancel {
+          padding: 8px 15px;
+          border: none;
+          border-radius: 5px;
+          background-color: var(--vscode-button-background);
+          color: var(--vscode-button-foreground);
+          cursor: pointer;
+          font-size: 0.9em;
+          transition: background-color 0.2s ease;
+      "onmouseover="this.style.backgroundColor = 'var(--vscode-button-hoverBackground)'"
+      onmouseout="this.style.backgroundColor = 'var(--vscode-button-background)'
+      }
+
+      .delete-confirm {
+          padding: 8px 15px;
+          border: none;
+          border-radius: 5px;
+          background-color: var(--vscode-button-background);
+          color: var(--vscode-button-foreground);
+          cursor: pointer;
+          font-size: 0.9em;
+          transition: background-color 0.2s ease;
+      "onmouseover="this.style.backgroundColor = 'var(--vscode-button-hoverBackground)'"
+      onmouseout="this.style.backgroundColor = 'var(--vscode-button-background)'
+      }
+
+      .floating-loading-indicator {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          z-index: 1000;
+          pointer-events: none;
+          padding: 15px 25px;
+          border-radius: 5px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          background-color: var(--vscode-editor-background);
+          color: var(--vscode-foreground);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+      }
+
+      .loading-content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+      }
+
+      .spinner {
+          border: 4px solid rgba(0, 0, 0, 0.1);
+          border-left-color: var(--vscode-button-background);
+          border-radius: 50%;
+          width: 20px;
+          height: 20px;
+          animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+      }
+
+      button:disabled {
+          background-color: var(--vscode-button-secondaryBackground);
+          color: var(--vscode-button-secondaryForeground);
+          cursor: not-allowed;
+      }
+
+      .loading-span {
+          font-size: 16px;
+      }
+
+      #projectSelectedSdkText {
+          width: 95%;
+          display: inline-block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+      }
+  </style>
+</head>
+
+<body>
+<h2>Configure Cangjie SDK</h2>
+<div class="container">
+  <h3 class="section-title">Current Project SDK (Workspace Settings)</h3>
+  <div id="projectSdkMessageArea" class="message-area"></div> <!-- Message area for Project SDK -->
+  <div class="form-group">
+    <label>Select SDK to apply to current project</label>
+    <div class="path-selector">
+      <div class="custom-select" id="projectSdkSelect">
+        <div class="custom-select-trigger" tabindex="0">
+          <span id="projectSelectedSdkText">Select SDK...</span>
+        </div>
+        <div class="custom-select-options" id="projectSdkOptionsContainer">
+        </div>
+      </div>
+      <div style='width: 10%; margin-left: 10px'>
+        <button id="selectFolderButton" style='width: 60px;height: 100%' onclick="triggerFolderSelect()">+</button>
+      </div>
+    </div>
+  </div>
+  <button id="applySdkButton" onclick="applyProjectSDK()">Apply</button>
+</div>
+
+<dialog id="delete-confirm-dialog">
+  <div style="margin-bottom: 15px;" id="delete-confirm-text">Are you sure you want to delete the SDK?</div>
+  <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px">
+    <button id="dialog-cancel-btn" class="delete-cancel">Cancel</button>
+    <button id="dialog-confirm-btn" class="delete-confirm">Delete</button>
+  </div>
+</dialog>
+
+<div id="floatingLoadingIndicator" class="floating-loading-indicator" style="display: none;">
+  <div class="loading-content">
+    <div class="spinner"></div>
+    <span class="loading-span">Loading...</span>
+  </div>
+</div>
+
+<script>
+// ==========================================
+// Get VS Code injected API object (can only be called once)
+// ==========================================
+const vsCodeApi = acquireVsCodeApi();
+
+const selectFolderButton = document.getElementById('selectFolderButton');
+const applySdkButton = document.getElementById('applySdkButton');
+const floatingLoadingIndicator = document.getElementById('floatingLoadingIndicator');
+
+// Message areas
+const projectSdkMessageArea = document.getElementById('projectSdkMessageArea');
+
+let allGlobalCjSdks = [];
+let projectSelectedCjSdk = '';
+
+// Project SDK Selection Custom Dropdown Logic ====
+const projectSdkSelect = document.getElementById('projectSdkSelect');
+const projectSdkTrigger = projectSdkSelect.querySelector('.custom-select-trigger');
+const projectSelectedSdkText = document.getElementById('projectSelectedSdkText');
+const projectSdkOptionsContainer = document.getElementById('projectSdkOptionsContainer');
+let currentProjectSelectedSdkPath = ''; // Stores the selected SDK path
+
+projectSdkTrigger.addEventListener('click', function (e) {
+  e.stopPropagation();
+  projectSdkSelect.classList.toggle('active');
+});
+
+// Click anywhere else on the page to close all custom dropdowns
+document.addEventListener('click', function () {
+  projectSdkSelect.classList.remove('active');
+});
+
+const confirmDialog = document.getElementById('delete-confirm-dialog');
+const confirmText = document.getElementById('delete-confirm-text');
+const dialogCancelBtn = document.getElementById('dialog-cancel-btn');
+const dialogConfirmBtn = document.getElementById('dialog-confirm-btn');
+
+let sdkToDeletePath = '';
+let sdkToDeleteName = '';
+
+dialogCancelBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  confirmDialog.close();
+  sdkToDeletePath = '';
+  sdkToDeleteName = '';
+});
+
+dialogConfirmBtn.addEventListener('click', () => {
+  if (sdkToDeletePath !== undefined && sdkToDeletePath !== null) {
+    vsCodeApi.postMessage({
+      command: 'deleteSdk',
+      sdkPath: sdkToDeletePath,
+      sdkName: sdkToDeleteName,
+    });
+    const optionToRemove = document.querySelector(`.custom-option[data-sdk-path="${sdkToDeletePath}"]`);
+    if (optionToRemove) {
+      optionToRemove.remove();
+    }
+  }
+  confirmDialog.close();
+});
+
+/**
+ * 设置界面为等待状态
+ */
+function setWaitingState() {
+  selectFolderButton.disabled = true;
+  applySdkButton.disabled = true;
+  floatingLoadingIndicator.style.display = 'flex';
+}
+
+/**
+ * 恢复界面为正常状态
+ */
+function restoreNormalState() {
+  selectFolderButton.disabled = false;
+  applySdkButton.disabled = false;
+  floatingLoadingIndicator.style.display = 'none';
+}
+
+// Utility function for displaying messages in the Webview
+const messageTimeouts = new Map();
+
+function showMessage(element, message, type = 'info', duration = 0) {
+  if (messageTimeouts.has(element)) {
+    clearTimeout(messageTimeouts.get(element));
+    messageTimeouts.delete(element);
+  }
+  element.textContent = message;
+  element.className = `message-area ${type}`;
+  element.style.display = 'block';
+  if (duration > 0) {
+    const timeoutId = setTimeout(() => {
+      element.style.display = 'none';
+      element.textContent = '';
+      messageTimeouts.delete(element);
+    }, duration);
+    messageTimeouts.set(element, timeoutId);
+  }
+}
+
+// Function to clear messages
+function clearMessages(element) {
+  if (messageTimeouts.has(element)) {
+    clearTimeout(messageTimeouts.get(element));
+    messageTimeouts.delete(element);
+  }
+  element.style.display = 'none';
+  element.textContent = '';
+  element.className = 'message-area';
+}
+
+// 1. Send message to backend, request to open folder selector
+function triggerFolderSelect() {
+  vsCodeApi.postMessage({
+    command: 'selectFolder'
+  });
+}
+
+function resetSdk(message) {
+  const globalAllCjSdks = message.globalAllCjSdks;
+  if (globalAllCjSdks !== undefined && globalAllCjSdks !== null) {
+    allGlobalCjSdks = JSON.parse(globalAllCjSdks);
+  }
+  projectSelectedCjSdk = message.projectSelectedCjSdk;
+  renderProjectSdkDropdown();
+}
+
+// 2. Listen for the actual absolute path returned from the backend
+window.addEventListener('message', event => {
+  const message = event.data;
+  const command = message.command;
+  if (command === 'folderSelected') {
+    // Get the real absolute physical path
+    setWaitingState(); // 进入等待状态
+  } else if (command === 'sdkDataLoaded') {
+    resetSdk(message);
+  } else if (command === 'dataSaved') {
+    const result = message.result;
+    allGlobalCjSdks = JSON.parse(message.globalAllCjSdks);
+    projectSelectedCjSdk = message.projectSelectedCjSdk;
+    currentProjectSelectedSdkPath = projectSelectedCjSdk;
+    // Re-render both dropdowns to ensure data is synchronized
+    renderProjectSdkDropdown();
+    restoreNormalState(); // 恢复正常状态
+  } else if (command === 'sdkDeleted') {
+    if (message.result) {
+      resetSdk(message);
+    }
+  }
+});
+
+// SDK data structure now includes name, path, type
+function getGlobalSDKs() {
+  vsCodeApi.postMessage({
+    command: 'loadSdkData',
+  });
+}
+
+// Render project SDK selection dropdown
+function renderProjectSdkDropdown() {
+  projectSdkOptionsContainer.innerHTML = '';
+  let hasSelection = false;
+  allGlobalCjSdks.forEach(sdk => {
+    const optionDiv = document.createElement('div');
+    optionDiv.className = 'custom-option';
+    optionDiv.dataset.sdkName = sdk.name;
+    optionDiv.dataset.sdkPath = sdk.path;
+    const textSpan = document.createElement('span');
+    textSpan.innerText = `${sdk.name} (${sdk.type}) (${sdk.path})`;
+    textSpan.title = `${sdk.name} (${sdk.type}) (${sdk.path})`;
+    textSpan.className='select-sdk-option';
+    optionDiv.appendChild(textSpan);
+    const deleteBtn = document.createElement('span');
+    deleteBtn.innerText = '✖';
+    deleteBtn.className = 'del-sdk-icon';
+    deleteBtn.title = 'Delete this SDK';
+    deleteBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      sdkToDeletePath = sdk.path;
+      sdkToDeleteName = sdk.name;
+      confirmText.innerText = `Are you sure you want to delete the SDK '${sdk.name}'?`;
+      confirmDialog.showModal();
+    });
+    optionDiv.appendChild(deleteBtn);
+    if (projectSelectedCjSdk === sdk.path) {
+      optionDiv.classList.add('selected');
+      projectSelectedSdkText.innerText = textSpan.innerText;
+      projectSelectedSdkText.title = textSpan.innerText;
+      currentProjectSelectedSdkPath = sdk.path;
+      hasSelection = true;
+    }
+    optionDiv.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const allOptions = projectSdkOptionsContainer.querySelectorAll('.custom-option');
+      allOptions.forEach(opt => opt.classList.remove('selected'));
+      this.classList.add('selected');
+      projectSelectedSdkText.innerText = textSpan.innerText;
+      projectSelectedSdkText.title = textSpan.innerText;
+      currentProjectSelectedSdkPath = this.dataset.sdkPath;
+      projectSdkSelect.classList.remove('active');
+    });
+    projectSdkOptionsContainer.appendChild(optionDiv);
+  });
+  if (!hasSelection) {
+    projectSelectedSdkText.innerText = 'Select SDK...';
+    projectSelectedSdkText.title = 'Select SDK...';
+    currentProjectSelectedSdkPath = '';
+  }
+}
+
+function applyProjectSDK() {
+  // Clear any previous messages
+  clearMessages(projectSdkMessageArea);
+  if (!currentProjectSelectedSdkPath) {
+    return showMessage(projectSdkMessageArea, 'Please select an SDK from the dropdown to apply to the project.',
+      'error');
+  }
+  const targetSdk = allGlobalCjSdks.find(sdk => sdk.path === currentProjectSelectedSdkPath);
+  vsCodeApi.postMessage({
+    command: 'saveSelectedSdk',
+    sdkName: targetSdk?.name,
+    sdkOption: targetSdk?.type,
+    sdkPath: currentProjectSelectedSdkPath,
+  });
+}
+
+window.onload = function () {
+  getGlobalSDKs();
+};
+</script>
+</body>
+</html>

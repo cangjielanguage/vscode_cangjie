@@ -1,0 +1,13 @@
+.vscode/**
+.cloudbuild/**
+node_modules/**
+src/**
+.gitignore
+tsconfig.json
+tslint.json
+package-lock.json
+webpack.config.js
+webpack.common.js
+webpack.dev.js
+build.yml.lock
+doc/**

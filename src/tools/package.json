@@ -1,0 +1,416 @@
+{
+    "name": "Cangjie-TOOLS",
+    "displayName": "Cangjie-Tools",
+    "description": "VS Code support of Cangjie-language-tools",
+    "version": "0.36.5",
+    "publisher": "IDE-Innovation-Lab",
+    "icon": "images/cangjie_icon.png",
+    "repository": {
+        "type": "git",
+        "url": "/"
+    },
+    "engines": {
+        "vscode": "^1.65.0"
+    },
+    "categories": [
+        "Programming Languages",
+        "Debuggers"
+    ],
+    "keywords": [
+        "Cangjie"
+    ],
+    "activationEvents": [
+        "onCommand:cangjie.project.create",
+        "onCommand:cangjie.project.create.view",
+        "onCommand:cangjie.cjlintFloder",
+        "onCommand:cangjie.cjcovFloder",
+        "onCommand:extension.formatCjFolder",
+        "onCommand:cangjieBuild.editBuildConfiguration",
+        "workspaceContains:**/*.cj"
+    ],
+    "main": "./out/extension",
+    "scripts": {
+        "vscode:prepublish": "npm run webpack-tools",
+        "webpack-tools": "webpack --mode production --config webpack.config.tools.js"
+    },
+    "devDependencies": {
+        "webpack": "^5.72.1",
+        "webpack-cli": "^4.7.2",
+        "webpack-merge": "^5.1.4"
+    },
+    "contributes": {
+        "languages": [
+            {
+                "id": "Cangjie",
+                "aliases": [
+                    "Cangjie"
+                ],
+                "firstLine": "^/[/*].*-\\*-\\s*C\\+\\+\\s*-\\*-.*",
+                "extensions": [
+                    ".cj",
+                    ".cj.macrocall"
+                ]
+            }
+        ],
+        "configuration": [
+            {
+                "type": "object",
+                "title": "Cangjie Language Support",
+                "properties": {
+                    "CangjieSdkPath.CJNativeBackend": {
+                        "type": "string",
+                        "default": "",
+                        "order": 1,
+                        "markdownDescription": "The absolute path to CJNative-sdk, e.g.: /path/to/CJNative/cangjie. You can configure the SDK by accessing the [SDK Configuration](command:cangjie.sdk.manager.view)."
+                    },
+                    "CangjieSdkPath.CJVMBackend": {
+                        "type": "string",
+                        "default": "",
+                        "description": "(Linux Only)The absolute path to CJVM-sdk, e.g.: /path/to/CJVM/cangjie",
+                        "order": 2
+                    },
+                    "CangjieSdk.Option": {
+                        "type": "string",
+                        "default": "CJNative",
+                        "description": "You can set this option to switch the compilation environment",
+                        "enum": [
+                            "CJNative",
+                            "CJVM"
+                        ],
+                        "order": 3
+                    }
+                }
+            }
+        ],
+        "commands": [
+            {
+                "command": "cangjie.project.create",
+                "title": "Create Cangjie Project ",
+                "category": "cangjie",
+                "icon": "$(add)"
+            },
+            {
+                "command": "cangjie.project.create.view",
+                "title": "Create Cangjie Project View",
+                "category": "cangjie",
+                "icon": "$(add)"
+            },
+            {
+                "command": "extension.formatCj",
+                "title": "[Cangjie] Format"
+            },
+            {
+                "command": "extension.formatCjFolder",
+                "title": "[Cangjie] Format"
+            },
+            {
+                "command": "cangjie.build.helper",
+                "title": "Build Helper",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.parallel",
+                "title": "Parallelled Build",
+                "category": "Cangjie",
+                "icon": "$(run)"
+            },
+            {
+                "command": "cangjie.build.verbose",
+                "title": "Build With Verbose",
+                "category": "Cangjie",
+                "icon": "$(mirror)"
+            },
+            {
+                "command": "cangjie.build.coverage",
+                "title": "Build With Coverage",
+                "category": "Cangjie",
+                "icon": "$(debug-coverage)"
+            },
+            {
+                "command": "cangjie.build.alias",
+                "title": "Build With Alias",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.codeCheck",
+                "title": "Build With CodeCheck",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.multiParameter",
+                "title": "Build With MultiParameter",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.run",
+                "title": "Run Code",
+                "category": "Cangjie",
+                "icon": "$(run)"
+            },
+            {
+                "command": "cangjieBuild.editBuildConfiguration",
+                "title": "Edit Configuration (UI)",
+                "category": "Cangjie",
+                "icon": "$(edit)"
+            },
+            {
+                "command": "cangjie.build.update",
+                "title": "Update Cjpm.toml",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.clean",
+                "title": "Clean Build Result",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.test",
+                "title": "Execute Test File",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.test.noRun",
+                "title": "Test With NoRun",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.test.skipBuild",
+                "title": "Test With SkipBuild",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.test.jobs",
+                "title": "Test With Jobs",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.check",
+                "title": "Check Circular Dependencies",
+                "category": "Cangjie"
+            },
+            {
+                "command": "Cangjie.BuildArg.Json.Edit",
+                "title": "Build Args Edit",
+                "category": "Cangjie"
+            },
+            {
+                "command": "Cangjie.Cjpm.Toml.Edit",
+                "title": "Cjpm Config Edit",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.multiArgsCheck",
+                "title": "Test With MultiParameter",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.cross",
+                "title": "Build With Cross",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.condition",
+                "title": "Build With CustomizedOption",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.increment",
+                "title": "Build With Increment",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.targetDir",
+                "title": "Build With TargetDir",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.debugMacro",
+                "title": "Build With DebugMacro",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.build.jobs",
+                "title": "Build With Jobs",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.cjlint",
+                "title": "[Cangjie] CodeCheck",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.cjlintFloder",
+                "title": "[Cangjie] CodeCheck",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.cjcov",
+                "title": "[Cangjie] Coverage",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.cjcovFloder",
+                "title": "[Cangjie] Coverage",
+                "category": "Cangjie"
+            },
+            {
+                "command": "cangjie.require.addRequireLibs",
+                "title": "Add Require Libs",
+                "category": "Cangjie",
+                "icon": "$(add)"
+            },
+            {
+                "command": "cangjie.require.removeRequireLibs",
+                "title": "Remove Require Libs",
+                "category": "Cangjie",
+                "icon": "$(remove)"
+            },
+            {
+                "command": "cangjie.require.uiSetting",
+                "title": "Configure Required Libs",
+                "category": "Cangjie",
+                "icon": "$(edit)"
+            },
+            {
+                "command": "cangjie.lsp.updateState",
+                "title": "update LSPServer state",
+                "category": "Cangjie"
+            },
+            {
+              "command": "cangjie.sdk.manager.view",
+              "title": "Configure Cangjie SDK",
+              "category": "cangjie"
+            }
+        ],
+        "keybindings": [
+            {
+                "when": "editorTextFocus",
+                "command": "extension.formatCj",
+                "key": "ctrl+alt+f"
+            },
+            {
+                "when": "editorTextFocus",
+                "command": "cangjie.cjlint",
+                "key": "ctrl+alt+c"
+            },
+            {
+                "when": "editorTextFocus",
+                "command": "cangjie.cjcov",
+                "key": "ctrl+alt+g"
+            }
+        ],
+        "menus": {
+            "explorer/context": [
+                {
+                    "when": "resourceExtname == .cj || explorerResourceIsFolder",
+                    "command": "extension.formatCjFolder",
+                    "group": "cangjieGroup"
+                },
+                {
+                    "when": "resourceExtname == .cj || explorerResourceIsFolder",
+                    "command": "cangjie.cjlintFloder",
+                    "group": "cangjieGroup"
+                },
+                {
+                    "when": "resourceExtname == .cj || explorerResourceIsFolder",
+                    "command": "cangjie.cjcovFloder",
+                    "group": "cangjieGroup"
+                }
+            ],
+            "editor/context": [
+                {
+                    "when": "resourceExtname == .cj && focusedView != 'workbench.panel.output'",
+                    "command": "extension.formatCj",
+                    "group": "cangjieGroup"
+                },
+                {
+                    "when": "resourceExtname == .cj && focusedView != 'workbench.panel.output'",
+                    "command": "cangjie.cjlint",
+                    "group": "cangjieGroup"
+                },
+                {
+                    "when": "resourceExtname == .cj && focusedView != 'workbench.panel.output'",
+                    "command": "cangjie.cjcov",
+                    "group": "cangjieGroup"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "cangjie.require.uiSetting",
+                    "when": "view == cangjieLibrary",
+                    "group": "navigation@0"
+                }
+            ],
+            "editor/title": [
+                {
+                    "command": "cangjie.run",
+                    "when": "resourceExtname == .cj",
+                    "group": "navigation@0"
+                },
+                {
+                    "command": "cangjie.build",
+                    "when": "resourceExtname == .cj",
+                    "group": "navigation@1"
+                },
+                {
+                    "command": "cangjieBuild.editBuildConfiguration",
+                    "group": "navigation@2"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "cangjie.require.addRequireLibs",
+                    "when": "false"
+                },
+                {
+                    "command": "cangjie.require.removeRequireLibs",
+                    "when": "false"
+                },
+                {
+                    "command": "cangjie.lsp.updateState",
+                    "when": "false"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "cangjie.require.addRequireLibs",
+                    "alt": "",
+                    "when": "view == cangjieLibrary && viewItem == NodeDataTitle",
+                    "group": "inline@0"
+                },
+                {
+                    "command": "cangjie.require.removeRequireLibs",
+                    "alt": "",
+                    "when": "view == cangjieLibrary && viewItem == NodeDataItem",
+                    "group": "inline"
+                }
+            ]
+        },
+        "views": {
+            "explorer": [
+                {
+                    "id": "cangjieLibrary",
+                    "name": "Cangjie Library"
+                }
+            ]
+        },
+        "taskDefinitions": [
+            {
+                "type": "buildcangjie",
+                "required": [],
+                "properties": {
+                    "cmd": {
+                        "type": "string"
+                    },
+                    "group": {
+                        "type": "string"
+                    }
+                }
+            }
+        ]
+    },
+    "dependencies": {
+        "keytar": "^7.9.0",
+        "vsce": "^1.99.0"
+    }
+}

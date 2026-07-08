@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{settings_css_uri}}" nonce="{{nonce}}">
+  <title>RequiredImport</title>
+</head>
+<body class="page-margins">
+  <div class="require-page" id="require-page">
+    <div id="requireTree" class="require-title">
+      <div>Import Required Libs</div>
+    </div>
+    <div id="main-tree">
+      <div id="section1">
+        <div class="section1-dependencies">Dependencies</div>
+        <div class="dependencies-title">
+          <span class="dependencies-field">RequireName</span>
+          <span class="dependencies-field">Version</span>
+          <span class="dependencies-field">Path</span>
+        </div>
+        <table id="dependencies">
+        </table>
+        <button id="add_dependencies" class="addButton addBtn-action DependenciesBtn" >Add</button>
+      </div>
+      <div id="section2">
+        <div class="section2-bin-dependencies">Bin-Dependencies</div>
+        <div class="package-require-path" style="display: flex; flex-direction: column;">
+          <div class="package-require-path-option-title">path-option</div>
+          <table id="path-option" class="package-path-table">
+          </table>
+          <button id="add_path_option" class="addButton addBtn-action packageBtn" >Add</button>
+        </div>
+        <div class="package-option">package-option</div>
+        <div class="bin-dependencies-title">
+          <span class="bin-dependencies-field">packageRequireName</span>
+          <span class="bin-dependencies-field">Value</span>
+        </div>
+        <table id="package-option">
+        </table>
+        <button id="add_package_option" class="addButton addBtn-action packageBtn" >Add</button>
+      </div>
+      <div id="section3">
+        <div class="section3-ffi">FFi</div>
+        <div class="ffi-title">
+          <span class="ffi-field">ForeignRequireName</span>
+          <span class="ffi-field">Path</span>
+        </div>
+        <table id="ffi">
+        </table>
+        <button id="add_ffi" class="addButton addBtn-action foreignBtn">Add</button>
+      </div>
+      <div id="section4">
+        <div class="section4-dev-dependencies">Dev-Dependencies</div>
+        <div class="dev-dependencies-title">
+          <span class="dev-dependencies-field">RequireName</span>
+          <span class="dev-dependencies-field">Version</span>
+          <span class="dev-dependencies-field">Path</span>
+        </div>
+        <table id="dev-dependencies">
+        </table>
+        <button id="add_dev_dependencies" class="addButton addBtn-action devDependenciesBtn" >Add</button>
+      </div>
+      <div id="section5">
+        <div class="section5-script-dependencies">Script-Dependencies</div>
+        <div class="script-dependencies-title">
+          <span class="script-dependencies-field">RequireName</span>
+          <span class="script-dependencies-field">Version</span>
+          <span class="script-dependencies-field">Path</span>
+        </div>
+        <table id="script-dependencies">
+        </table>
+        <button id="add_script_dependencies" class="addButton addBtn-action scriptDependenciesBtn" >Add</button>
+      </div>
+    </div>
+  </div>
+</body>
+<script src="{{settings_js_uri}}" nonce="{{nonce}}"></script>
+</html>

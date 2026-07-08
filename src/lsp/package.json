@@ -1,0 +1,113 @@
+{
+  "name": "Cangjie-Language-Support",
+  "displayName": "Cangjie-Language-Support",
+  "description": "cangjie completion, navigation, and insights",
+  "version": "0.1.28",
+  "publisher": "IDE-Innovation-Lab",
+  "icon": "images/cangjie_icon.png",
+  "repository": {
+    "type": "git",
+    "url": "/"
+  },
+  "engines": {
+    "vscode": "^1.65.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "Cangjie"
+  ],
+  "activationEvents": [
+    "onLanguage:Cangjie"
+  ],
+  "main": "./dist/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.101.0",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.25.1",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3",
+    "webpack": "^5.99.7",
+    "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "vscode-languageclient": "9.0.1"
+  },
+  "overrides": {
+      "semver": "7.5.4"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "Cangjie",
+        "aliases": [
+          "Cangjie"
+        ],
+        "firstLine": "^/[/*].*-\\*-\\s*C\\+\\+\\s*-\\*-.*",
+        "extensions": [
+          ".cj",
+          ".cj.macrocall"
+        ],
+        "configuration": "./syntaxes/language-configuration.json",
+        "icon": {
+          "light": "./images/cangjie_icon.png",
+          "dark": "./images/cangjie_icon.png"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "Cangjie",
+        "scopeName": "source.cj",
+        "path": "./syntaxes/Cangjie.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "cangjie",
+      "properties": {
+        "CrossLanguage.CppDirectory": {
+          "type": "string",
+          "default": "",
+          "description": "C source code directory,e.g.: /path/cpp/",
+          "order": 0
+        },
+        "CangjieLog.Telemetry": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable Cangjie LSP crash data to be collected by plugin.",
+          "order": 1
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "cangjie.lsp.condition",
+        "title": "Run LSPServer With ConditionOption",
+        "category": "Cangjie"
+      },
+      {
+        "command": "cangjie.lsp.reLaunch",
+        "title": "reLaunch LSPServer",
+        "category": "Cangjie"
+      }
+    ]
+  }
+}

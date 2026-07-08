@@ -1,0 +1,27 @@
+{
+    "name": "DAP Disassembly",
+    "scopeName": "source.cj.disassembly",
+    "uuid": "fdc879b4-7e64-3a2f-a59d-ce862cd7cec9",
+    "patterns": [
+        {
+            "comment": "Address, offset and opcode",
+            "name": "meta.instruction",
+            "match": "^([A-Za-z0-9]+):\\s([A-Z0-9]{2}\\s)+>?\\s+(\\w+)"
+        },
+        {
+            "comment": "Register name",
+            "name": "variable.language",
+            "match": "%[A-Za-z][A-Za-z0-9]*"
+        },
+        {
+            "comment": "Numeric constant",
+            "name": "constant.numeric",
+            "match": "(\\$|\\b)(0x)[A-Za-z0-9]+\\b"
+        },
+        {
+            "comment": "Comments",
+            "name": "comment",
+            "match": ";.*$"
+        }
+    ]
+}

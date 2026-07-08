@@ -1,0 +1,98 @@
+@media (max-width: 900px) {
+  .require-page {
+    align-items: flex-start !important;
+  }
+}
+.page-margins {
+  vertical-align: top;
+  padding-top: 40px;
+  padding-bottom: 10px;
+}
+.require-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.require-title {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 42px;
+  margin-top: 50px;
+  width: 814px;
+}
+.section1-dependencies, .section2-bin-dependencies, .section3-ffi, .section4-dev-dependencies, .section5-script-dependencies {
+  font-size: 24px;
+  letter-spacing: 0;
+  line-height: 34px;
+  font-weight: 500;
+  margin-top: 35px;
+  margin-bottom: 12px;
+}
+
+.dependencies-title, .bin-dependencies-title, .ffi-title,
+.package-option-title, .path-option-title, .dev-dependencies-title,
+.script-dependencies-title {
+  width: 810px;
+  min-width: 810px;
+  display: flex;
+  background: var(--vscode-editorWidget-background);
+  position: relative;
+}
+.dependencies-field, .ffi-field, .bin-dependencies-field,
+.path-option-field, .package-option-field, .dev-dependencies-field,
+.script-dependencies-field {
+  font-size: 14px;
+  letter-spacing: 0;
+  line-height: 22px;
+  font-weight: 400;
+  width: 187px;
+  height:22px;
+  padding: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bin-dependencies-field, .path-option-field, .package-option-field {
+  width: 347px;
+}
+.ffi-field {
+  width: 302px;
+}
+.addButton {
+  background-color:#0E629C;
+  width: 75px;
+  height: 26px;
+  margin-bottom: 30px;
+  margin-top:10px;
+  font-size: 14px;
+  color: #FFFFFF;
+  letter-spacing: 0;
+  text-align: center;
+  line-height: 20px;
+  font-weight: 400;
+}
+.addBtn-action {
+  background-color: var(--vscode-button-background) !important;
+  color: var(--vscode-button-foreground) !important;
+  padding: 2px 14px !important;
+  border: 0 !important;
+}
+.delIcon {
+  height: 20px;
+  width: 20px;
+  right: 10px;
+  position: absolute;
+  user-select: none;
+}
+.package-require-path-option-title, .package-option {
+  font-size: 17px;
+  letter-spacing: 0;
+  line-height: 34px;
+  font-weight: 300;
+}
+.single_path {
+  display: flex;
+  flex-direction: row;
+  margin: 4px 0;
+  font-size: 14px;
+}

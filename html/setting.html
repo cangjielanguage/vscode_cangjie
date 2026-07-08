@@ -1,0 +1,216 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{{settings_css_uri}}" nonce="{{nonce}}" rel="stylesheet">
+  </head>
+
+  <body class="page-margins">
+  <!-- sidebar -->
+  <div id="sidebar" class="sidebar">
+
+    <div style="height: 38px; display: block">
+        <table>
+            <td>
+                <div style="font-size: 28px; font-weight: 600; line-height: 24px"><span>Cangjie Extension</span></div>
+            </td>
+          </table>
+    </div>
+
+    <div style="height: 30px; display: block"></div>
+
+    <div style="padding-right: 10px; color: var(--vscode-foreground);">
+        <span style="font-size: 14px">Open this editor by using the command:</span><br>
+        <code>Cangjie: Edit configurations (UI)</code>
+
+        <div class="blankLine"></div>
+
+        <span>Switch to the <a href="command:Cangjie.BuildArg.Json.Edit" title="Edit configurations in JSON file">cjpm_build_args.json</a></span><br>
+
+        <div class="blankLine"></div>
+
+        <span>Switch to the <a href="command:Cangjie.Cjpm.Toml.Edit" title="Edit configurations in toml file">cjpm.toml</a> </span><br>
+
+        <div class="blankLine"></div>
+    </div>
+
+  </div> <!-- sidebar end -->
+
+  <div class="splitLine" id="splitLine"></div>
+
+  <!-- main -->
+  <div id="main" class="main">
+
+    <div id=showcjpmBuildArgs style="margin-top: 5px; font-size: 26px; font-weight: 500; width: 100%; text-align: left;">Cjpm Build Configurable Parameters</div>
+    <div class="blankLine"></div>
+
+    <div id=cjpmBuildArgs style="display: flex; flex-direction: column; font-size: 14px;">
+        <span style="color: #FFFFFF"></span>can choose multiple<br/>
+        <div style="display: flex;">
+            <input  class="cjpmBuildArg" name="-g" id="debug" type="checkbox"  value="-g" />
+            <label class="buildCheckbox" for="debug">-g: enable compile debug version target </label>
+        </div>
+        <div style="display: flex;">
+            <input  class="cjpmBuildArg" name="-V" id="verbose" type="checkbox"  value="-V" />
+            <label class="buildCheckbox" for="verbose">-V: enable verbose</label>
+        </div>
+        <div style="display: flex;">
+            <input  class="cjpmBuildArg" name="--coverage" id="coverage" type="checkbox"  value="--coverage" />
+            <label class="buildCheckbox" for="coverage">--coverage: enable coverage</label>
+        </div>
+        <div style="display: flex;">
+            <input  class="cjpmBuildArg" name="-i" id="increment" type="checkbox"  value="-i" />
+            <label class="buildCheckbox" for="increment">-i: enable incremental compilation</label>
+        </div>
+        <div style="display: flex;">
+            <input  class="cjpmBuildArg" name="--lint" id="codeCheck" type="checkbox"  value="--lint" />
+            <label class="buildCheckbox" for="codeCheck">--lint: enable codeCheck</label>
+        </div>
+        <label style="margin-bottom: 2px; margin-top: 2px">specify product name when compiling an executable file</label>
+        <input class="aliasName" id="alias" type="text" name="inputValue" style="width: 342px; " placeholder="Please enter an alias name">
+        <label style="margin-bottom: 2px; margin-top: 15px">specify cross compile param when compiling an executable file</label>
+        <input class="crosssName" id="cross" type="text" name="inputValue" style="width: 342px; " placeholder="Please enter an cross compile param">
+        <label style="margin-bottom: 2px; margin-top: 15px">specify job compile param when compiling a project</label>
+        <input class="jobName" id="job" type="text" name="inputValue" style="width: 342px; " placeholder="Please enter an job compile param">
+        <label style="margin-bottom: 2px; margin-top: 15px">specify customized-option param when compiling an executable file. eg: <code>cfg1 cfg2</code></label>
+        <input class="conditionName" id="condition" type="text" name="inputValue" style="width: 640px; " placeholder="Please enter customized-option param which from customized-option in cjpm.toml file">
+        <label style="margin-bottom: 2px; margin-top: 15px">specify features param when compiling a project</label>
+        <select name="inputValue" id="features" class="select-default" style="width: 640px; ">
+            <option value="">None</option>
+        </select>
+    </div> <!-- cjpm build configurable parameters settings end -->
+
+    <!-- title -->
+    <div style=" height: 90px; display: inline-block;">
+      <div class="main-title">Configuration Of Cjpm.toml</div>
+      <div style="height: 10px; display: block"></div>
+      <div style="color: var(--vscode-foreground);">
+        <span>The module configuration file cjpm.toml is used to configure some basic information, dependencies, compilation options, etc.,
+            and cjpm mainly parses and executes through this file. Among them, the module name can be renamed in cjpm.toml,
+            but the package name cannot be renamed in cjpm.toml</span>
+      </div>
+    </div>
+
+    <div style="height: 10px; display: block"></div>
+
+    <!-- sections -->
+    <div class="section">
+        <div class="section-title">name</div>
+        <div class="section-text" >Module name A valid Cangjie module name must be a valid identifier. The identifier can be composed of letters, numbers, and underscores.
+            The identifier must start with a letter, and its form is <code>cjModDemo</code></div>
+        <div>
+            <input name="inputValue" id="name" rows="2" cols="93" style="width: 500px"></input>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">description</div>
+        <div class="section-text">The current Cangjie module description information is for illustrative purposes only and does not limit the format.</div>
+        <div>
+            <textarea name="inputValue" id="description" rows="3" cols="93" style="width: 500px"></textarea>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">target-dir</div>
+        <div class="section-text" >The current Cangjie module compile output path.Specify the compile output directory path, and it is also <code>cjpm clean</code> target.
+            Both absolute paths and relative paths are allowed.
+            The default path is current Cangjie project relative path <code>./target</code> in linux, <code>.\\target</code> in windows.
+        </div>
+        <div>
+            <input name="inputValue" id="target-dir" style="width: 500px"></input>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">compile-option</div>
+        <div class="section-text">Additional compile options to pass to cjc. When compiling multiple modules, the compile-option set by each module takes effect separately for that module <code>-backend-js -test -ui</code>.</div>
+        <div>
+            <input name="inputValue" id="compile-option" style="width: 500px"></input>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">link-option</div>
+        <div class="section-text">Compilation options for the linker, which can be used to pass secure compilation commands transparently</div>
+        <div>
+            <div class="link_option" >
+                <input name="inputValue" id="link-option" style="width: 500px"></input>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">cross-compile-configuration</div>
+        <div class="section-text">Configuration required for cross-compiling to the target platform. This option is a map structure, the target platform name is used as the key, and the configuration information required by the platform is used as the value</div>
+        <div>
+            <div class="cross-title" >
+                <div class="cross-sub-title" style="display: flex;background-color: rgb(92 86 86 / 18%);">
+                    <span class="cross-key">Key</span>
+                    <span class="cross-value">compile-option</span>
+                </div>
+
+                <div id="crossOpts">
+                </div>
+            </div>
+            <button id="crossCompile">Add Configuration</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">package-configuration</div>
+        <div class="section-text">Single-package configurable items per module</div>
+        <div>
+            <div class="pkg-title">
+                <div class="pkg-sub-title" style="display: flex;background-color: rgb(92 86 86 / 18%);">
+                    <span class="pkg-key">Key</span>
+                    <span class="pkg-output-type">output-type</span>
+                    <span class="pkg-compile-option">compile-option</span>
+                </div>
+
+                <div id="pkgCfg">
+                </div>
+            </div>
+            <button id="pkgConfig">Add Configuration</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">customized-option</div>
+        <div class="section-text">According to the command that is transparently passed to cjc according to the conditional option, the customized-option setted by each module takes effect for all packages in the module</div>
+        <div>
+            <div class="cnd-title">
+                <div class="cnd-sub-title" style="display: flex;background-color: rgb(92 86 86 / 18%);">
+                    <span class="condition">condition</span>
+                    <span class="cnd_configuration">configuration</span>
+                </div>
+
+                <div id="cndCfg">
+                </div>
+            </div>
+            <button id="cndConfig">Add Configuration</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title" >output-type</div>
+        <div class="section-text">
+            <span>Types of compiled output products, including executable programs and libraries. If you want to generate cjpm.toml When this field is automatically filled with static, you can use the command <code>cjpm init --type=static mod org</code>. If no type is specified, it will be generated as <code>executable</code> by default</span>
+        </div>
+        <div>
+          <select name="inputValue" id="output-type" class="select-default">
+            <option value="executable" class="CJNativeType">executable</option>
+            <option value="static" class="CJNativeType">static</option>
+            <option value="dynamic" class="CJNativeType">dynamic</option>
+          </select>
+        </div>
+    </div>
+    <!-- sections end -->
+
+  </div> <!-- main end -->
+
+  <script nonce="{{nonce}}" src="{{settings_js_uri}}"></script>
+</body>
+</html>
