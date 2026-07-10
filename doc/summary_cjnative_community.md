@@ -1,7 +1,0 @@
-- [IDE 插件使用指南](source_zh_cn/IDE/ide_plug-in_overview_community.md)
-    - [安装指导](source_zh_cn/IDE/install_community.md)
-    - [语言服务](source_zh_cn/IDE/language_service_community.md)
-    - [创建仓颉工程](source_zh_cn/IDE/create_cj_project_community.md)
-    - [编译构建](source_zh_cn/IDE/compilation_and_building_community.md)
-    - [调试服务](source_zh_cn/IDE/debug_service_community.md)
-    - [命令行工具集成](source_zh_cn/IDE/command-line_tools_integration_community.md)
