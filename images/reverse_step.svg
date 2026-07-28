@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 64 (93537) - https://sketch.com -->
+    <title>reverse_step_over-light</title>
+    <desc>Created with Sketch.</desc>
+    <g id="reverse_step_over-light" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group" transform="translate(6.500000, 7.500000) rotate(-45.000000) translate(-6.500000, -7.500000) translate(1.000000, 1.000000)">
+            <polygon id="Path" fill="#EE9D28" points="4.94974747 9.89949494 7.63833441e-14 4.94974747 4.94974747 4.08562073e-14"></polygon>
+            <polyline id="Path" stroke="#EE9D28" stroke-width="2" transform="translate(6.242641, 8.949747) rotate(-360.000000) translate(-6.242641, -8.949747) " points="2.24264069 4.94974747 10.2426407 4.94974747 10.2426407 12.9497475"></polyline>
+        </g>
+        <g id="Group-2" transform="translate(8.000000, 13.000000) rotate(-270.000000) translate(-8.000000, -13.000000) translate(7.000000, 7.000000)" fill="#4D4D4D">
+            <rect id="Combined-Shape" x="2.27373675e-13" y="-1.13686838e-13" width="2" height="12"></rect>
+        </g>
+    </g>
+</svg>

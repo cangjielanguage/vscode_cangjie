@@ -1,0 +1,501 @@
+@media (max-width: 1140px) {
+  #sidebar {
+    display: none;
+  }
+  #splitLine {
+    display: none;
+  }
+  #main {
+    max-width: 1000px;
+    padding: 0px 20px;
+    margin: auto;
+  }
+}
+
+.page-margins {
+  vertical-align: top;
+  padding-top: 40px;
+  padding-bottom: 10px;
+}
+
+.sidebar {
+  width: 290px;
+  position: fixed;
+  z-index: 1;
+  left: 45px;
+  overflow-x: hidden;
+}
+
+.main {
+  max-width: 1000px;
+  margin-left: 380px;
+  padding: 0px 18px;
+}
+
+.main-title {
+  font-weight: 500;
+  font-size: 26px;
+  padding-bottom: 6px;
+  margin-top: 35px;
+}
+
+.section {
+  padding-bottom: 20px;
+  padding-top: 20px;
+}
+
+.section-title {
+  font-weight: 500;
+  font-size: 14px;
+  padding-bottom: 7px;
+}
+
+.section-text {
+  font-size: 14px;
+  padding-bottom: 8px;
+  color: var(--vscode-foreground);
+}
+
+body {
+  line-height: 19px;
+}
+
+a {
+  text-decoration: none;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  border-bottom: 1px solid;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+::placeholder {
+  color: var(--vscode-input-placeholderForeground);
+}
+
+input {
+  height: 25px;
+  padding: 4px;
+  font-size: 13px;
+  font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+  color: var(--vscode-settings-textInputForeground);
+  background: var(--vscode-settings-textInputBackground);
+  border: 1px solid var(--vscode-settings-textInputBorder);
+}
+
+textarea {
+  white-space: nowrap;
+  padding: 4px, 4px;
+  font-size: 13px;
+  font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+  color: var(--vscode-settings-textInputForeground);
+  background: var(--vscode-settings-textInputBackground);
+  border: 1px solid var(--vscode-settings-textInputBorder);
+}
+
+.select-default {
+  width: 300px;
+  height: 27px;
+  font-size: 13px;
+  font-family: sans-serif;
+  color: var(--vscode-settings-dropdownForeground);
+  background: var(--vscode-settings-dropdownBackground);
+  border: 1px solid var(--vscode-settings-dropdownBorder);
+}
+
+.select-editable {
+  position: relative;
+  background-color: var(--vscode-settings-textInputBackground);
+  width: 800px;
+  height: 31px;
+}
+
+.select-editable select {
+  position: absolute;
+  font-size: 13px;
+  font-family: sans-serif;
+  border: 1px solid var(--vscode-settings-textInputBorder);
+  height: 31px;
+  margin: auto;
+  color: var(--vscode-settings-textInputForeground);
+  background: var(--vscode-settings-textInputBackground);
+}
+
+.select-editable input {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  right: 1px;
+  bottom: 1px;
+  height: 17px;
+  font-size: 13px;
+  border: none;
+  color: var(--vscode-settings-textInputForeground);
+  background: var(--vscode-settings-textInputBackground);
+}
+
+.select-editable input:focus {
+  outline-offset: 0px;
+}
+
+blockquote {
+  margin: 0 7px 0 5px;
+  padding: 0 16px 0 10px;
+  border-left: 5px solid;
+}
+
+code {
+  font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+  line-height: 19px;
+}
+
+code > div {
+  padding: 16px;
+  border-radius: 3px;
+  overflow: auto;
+}
+
+.monaco-tokenized-source {
+  white-space: pre;
+}
+
+.vscode-light {
+  color: #1e1e1e;
+}
+
+.vscode-dark {
+  color: #ddd;
+}
+
+.vscode-high-contrast {
+  color: #fff;
+}
+
+.vscode-light code {
+  color: #a31515;
+}
+
+.vscode-dark code {
+  color: #d7ba7d;
+}
+
+.vscode-light code > div {
+  background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark code > div {
+  background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-light .input-disabled {
+  background-color: rgba(255, 255, 255, 0.4);
+  color: rgb(138, 138, 138);
+  border: solid 1px rgb(201, 198, 198);
+}
+
+.vscode-dark .input-disabled {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgb(167, 167, 167);
+}
+
+.vscode-high-contrast .input-disabled {
+  background-color: transparent;
+  color: #fff;
+  border: solid 1px rgb(255, 255, 255);
+}
+
+.vscode-high-contrast code > div {
+  background-color: #000;
+}
+
+.vscode-high-contrast h1 {
+  border-color: #000;
+}
+
+.vscode-light table > thead > tr > th {
+  border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+  border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.vscode-light blockquote,
+.vscode-dark blockquote {
+  background: rgba(127, 127, 127, 0.1);
+  border-color: rgba(0, 122, 204, 0.5);
+}
+
+.vscode-high-contrast blockquote {
+  background: transparent;
+  border-color: #fff;
+}
+
+.footer {
+  padding: 25px;
+  text-align: center;
+}
+
+.vscode-light a {
+  color: #4080d0;
+}
+
+.vscode-dark a {
+  color: #3794ff;
+}
+
+.splitLine {
+  height: 100%;
+  color: #414141;
+  position: fixed;
+  left: 362px;
+  border: 0.1px solid;
+  overflow-x: hidden;
+}
+
+#showcjpmBuildArgs {
+  margin-top: 5px;
+  font-size: 26px;
+  font-weight: 500;
+  width: 100%;
+  text-align: left;
+}
+
+.cjpmBuildArg {
+  zoom: 1.5;
+  margin: 2px 4px 1px 4px;
+}
+
+.buildCheckbox {
+  display: flex;
+  align-items: center;
+}
+
+.cjpmBuildArg :focus {
+  border: none;
+  box-shadow: none;
+}
+
+input[type="checkbox" i]:focus-visible {
+  outline-offset: 0px;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 1px;
+  outline-offset: 1px;
+  border: 1px solid #007fd4;
+}
+
+.blankLine {
+  height: 30px;
+  display: block;
+}
+
+.cross-title, .pkg-title, .cnd-title, .singlePkg-title {
+  display: flex;
+  color: var(--vscode-settings-textInputForeground);
+  background: var(--vscode-settings-textInputBackground);
+  flex-direction: column;
+}
+
+.cross-key {
+  width: 205px;
+  height: 26px;
+  line-height: 26px;
+  padding-left: 5px;
+}
+
+.pkg-key {
+  width: 150px;
+  height: 26px;
+  line-height: 26px;
+  padding: 4px;
+}
+
+.cross-value {
+  width: 500px;
+  height: 26px;
+  line-height: 26px;
+  padding-left: 5px;
+}
+
+.pkg-output-type {
+  width: 100px;
+  height: 26px;
+  line-height: 26px;
+  padding: 4px;
+}
+
+.pkg-compile-option {
+  height: 26px;
+  padding: 4px;
+  line-height: 26px;
+  padding: 4px 34px 4px 0;
+  text-align: center;
+  flex: 1;
+}
+
+.condition, .packageName {
+  width: 150px;
+  height: 26px;
+  line-height: 26px;
+  padding: 4px;
+}
+
+.pkg_configuration {
+  height: 26px;
+  line-height: 26px;
+  padding: 4px 26px 4px 4px;
+  flex: 1;
+  text-align: center;
+}
+
+.cnd_configuration {
+  height: 26px;
+  line-height: 26px;
+  padding: 4px;
+}
+
+.cross-input-value {
+  display: flex;
+  flex: 1;
+}
+
+.pkg-input-key {
+  width: 150px;
+}
+
+.pkg-input-output-type {
+  width: 200px;
+}
+
+.pkg-input-compile-option {
+  display: flex;
+  flex: 1;
+  padding-left: 13px;
+  text-align: center;
+}
+
+.single-cnd-input-configuration {
+  flex: 1;
+  text-align: center;
+}
+
+.single-cnd-input {
+  display: flex;
+  flex: 1;
+}
+
+.cnd-input-cnd {
+  width: 180px;
+}
+
+.cnd-input-cfg {
+  display: flex;
+  flex: 1;
+}
+
+#crossCompile, #pkgConfig, #cndConfig, #singleCndConfig {
+  background-color: rgb(14, 108, 180);
+  color: white;
+  margin-top: 10px;
+  height: 34px;
+  border-color: rgb(14,95,156);
+}
+
+.sub-btn {
+  display: flex;
+  align-items: center;
+}
+
+.pkg-input, .cnd-input {
+  display: flex;
+  flex: 1;
+}
+
+.pkg-btn, .cnd-btn, .single-cnd-btn {
+  margin: 0 6px;
+}
+
+.pkg-sub-btn, .pkg-del-btn, .can-sub-btn, .add-sub-btn,
+.cnd-sub-btn, .cnd-del-btn, .single-cnd-del-btn, .single-cnd-sub-btn {
+  height: 25px;
+  width: 25px;
+  border: 0px;
+  background: rgba(0,0,0,0);
+  color: #a19d9d;
+}
+.pkg-sub-btn, .add-sub-btn, .cnd-sub-btn {
+  font-size: 13px;
+}
+
+.pkg-sub-btn:hover, .pkg-del-btn:hover, .add-sub-btn:hover, .can-sub-btn:hover,
+.cnd-sub-btn:hover, .cnd-del-btn:hover, .single-cnd-del-btn:hover, .single-cnd-sub-btn:hover {
+  color: white;
+  font-size: larger;
+}
+
+.pkg-del-btn, .can-sub-btn, .cnd-del-btn, .single-cnd-del-btn {
+  font-size: medium;
+}
+
+.cross-input-key {
+  width: 199px;
+}
+
+.cross-item {
+  display:flex;
+  align-content:center
+}
+
+.pkg-item, .cnd-item, .single-cnd-item {
+  display: flex;
+  align-items: center;
+}
+
+#crossOpts {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-main {
+  display: flex;
+  flex: 1;
+}
+
+.crossName {
+  width: 342px;
+}
+
+#conditionType {
+  color: var(--vscode-settings-textInputForeground);
+  background: var(--vscode-settings-textInputBackground);
+}
+
+.singlePkg-title {
+  margin-top: 24px;
+}
+
+#conditionType {
+  width: 100px;
+}
