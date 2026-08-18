@@ -22,7 +22,7 @@ import { Utility } from './utils/utils';
 import * as breakpoints from './break-points';
 import * as checkhealthy from './check-healthy';
 import * as fs from 'fs';
-import { MAX_RESTART_COUNT, State, delay100 } from './utils/constantNums';
+import { MAX_RESTART_COUNT, State, delay100, delay500 } from './utils/constantNums';
 import * as serverStatus from './server-status';
 
 export const cangjieDocumentSelector = [
@@ -301,6 +301,9 @@ export class ChangjieContext implements vscode.Disposable {
       // 监听文本编辑，优先刷新当前编辑器，其他可见编辑器延迟刷新
       this.registerTextChangeListener();
 
+      // 监听文件重命名，强制 LSP Server 对改名后的文件重新分析并回推诊断
+      this.registerFileRenameListener();
+
       vscode.commands.executeCommand('cangjie.lsp.updateState', {
         state: State.Stopped,
         serverVersion: ChangjieContext.envInfo.serverVersion,
@@ -379,6 +382,49 @@ export class ChangjieContext implements vscode.Disposable {
   // 判断是否为 Cangjie 文档
   private isCangjieDocument(document: vscode.TextDocument): boolean {
     return vscode.languages.match({ scheme: 'file', language: 'Cangjie' }, document) > 0;
+  }
+
+  private registerFileRenameListener(): void {
+    const renameListener = vscode.workspace.onDidRenameFiles((event) => {
+      for (const rename of event.files) {
+        const uri = rename.newUri;
+        if (!uri.toString().endsWith('.cj')) {
+          continue;
+        }
+        // 延迟等待改名后的文档完成 didOpen，避免与 didChange 竞争
+        setTimeout(async () => {
+          try {
+            const editor = vscode.window.visibleTextEditors.find(
+                e => e.document.uri.toString() === uri.toString() && this.isCangjieDocument(e.document),
+            );
+            if (!editor) {
+              return;
+            }
+            const doc = editor.document;
+            // 在第 0 行末尾插入/删除一个空格，规避文件尾换行语义的歧义
+            const insertPos = new vscode.Position(0, doc.lineAt(0).text.length);
+            const prevSelection = editor.selection;
+            // 触发真实 didChange
+            const inserted = await editor.edit(
+                builder => builder.insert(insertPos, ' '),
+                { undoStopBefore: true, undoStopAfter: false },
+            );
+            if (!inserted) {
+              return;
+            }
+            const deleteRange = new vscode.Range(insertPos, new vscode.Position(0, insertPos.character + 1));
+            await editor.edit(
+                builder => builder.delete(deleteRange),
+                { undoStopBefore: false, undoStopAfter: true },
+            );
+            editor.selection = prevSelection;
+          } catch {
+            // 忽略编辑过程中的异常，避免影响重命名流程
+          }
+        }, delay500);
+      }
+    });
+    this.subscriptions.push(renameListener);
   }
 
   // 监听文本变化，当发生编辑时，对其他打开的 Cangjie 编辑器发送 semanticTokens 请求
