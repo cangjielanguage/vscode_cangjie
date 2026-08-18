@@ -152,7 +152,7 @@ export class ChangjieContext implements vscode.Disposable {
   client!: CangjieLanguageClient | null;
   traceOutput: vscode.OutputChannel;
   // 用于 semanticTokens 请求防抖的定时器
-  private semanticTokensDebounceTimer: NodeJS.Timeout | null = null;
+  private semanticTokensDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   get visibleClangdEditors(): vscode.TextEditor[] {
     return vscode.window.visibleTextEditors.filter((e) => isClangdDocument(e.document));
