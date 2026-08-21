@@ -99,7 +99,7 @@ export abstract class MessageManager {
         }
         case 'request': {
           let requestMsg = msgBody as Request<any>;
-          let handler = this.requestHandlers.get(requestMsg.command);
+          const handler = this.requestHandlers.get(requestMsg.command);
           if (handler === undefined || handler === null) {
             break;
           }
