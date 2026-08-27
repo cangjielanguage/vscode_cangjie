@@ -263,7 +263,7 @@ export class Utility {
       } catch (e) {
         break;
       }
-      Utility.delay(delay100);
+      await Utility.delay(delay100);
       count += 1;
       if (count === 3) {
         break;
@@ -532,6 +532,8 @@ export class Utility {
           this.projectType = 'general';
         } else if (pathSuffix === MULTI_PLATFORM_PATH) {
           this.projectType = 'multi-platform';
+        } else  {
+          this.projectType = 'origin';
         }
         break;
       }

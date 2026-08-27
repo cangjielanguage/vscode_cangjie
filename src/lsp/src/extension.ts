@@ -269,6 +269,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   registerAddImportCodeActionProvider(context);
 }
 
+// Re-entrancy guard: prevents concurrent reLaunch calls from interfering
+// (e.g., handleConnectionClosed triggering reLaunch while a manual reLaunch is in progress)
+let reLaunchInProgress = false;
+
 function registerLspAction(context: vscode.ExtensionContext, cangjieContext: ChangjieContext, outputChannel: vscode.OutputChannel): void {
   context.subscriptions.push(
     vscode.commands.registerCommand('cangjie.lsp.condition', async () => {
@@ -278,16 +282,24 @@ function registerLspAction(context: vscode.ExtensionContext, cangjieContext: Cha
 
   context.subscriptions.push(
     vscode.commands.registerCommand('cangjie.lsp.reLaunch', async (isCrashReLaunch: boolean = false) => {
-      Utility.clearMultiModuleOption();
-      if (isCrashReLaunch) {
-        cangjieContext.client = null;
-      } else {
-        cangjieContext.client.resetRestartCount();
+      if (reLaunchInProgress) {
+        return;
       }
-      await cangjieContext.dispose();
-      await Utility.delay(delay500);
-      const initializationOptions = await Utility.getInitializationOptions();
-      await cangjieContext.activate(context.globalStoragePath, outputChannel, context.workspaceState, context, initializationOptions);
+      reLaunchInProgress = true;
+      try {
+        Utility.clearMultiModuleOption();
+        if (isCrashReLaunch) {
+          cangjieContext.client = null;
+        } else {
+          cangjieContext.client.resetRestartCount();
+        }
+        await cangjieContext.dispose();
+        await Utility.delay(delay500);
+        const initializationOptions = await Utility.getInitializationOptions();
+        await cangjieContext.activate(context.globalStoragePath, outputChannel, context.workspaceState, context, initializationOptions);
+      } finally {
+        reLaunchInProgress = false;
+      }
     }),
   );
 
