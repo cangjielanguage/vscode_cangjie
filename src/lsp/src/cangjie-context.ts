@@ -72,6 +72,10 @@ class CangjieLanguageClient extends vscodelc.LanguageClient {
   }
 
   protected async handleConnectionClosed(): Promise<void> {
+    // Suppress crash recovery during intentional stop (dispose → client.stop)
+    if (ChangjieContext.isStopping) {
+      return;
+    }
     vscode.commands.executeCommand('cangjie.lsp.updateState', { state: State.Stopped });
     super.handleConnectionClosed();
     const telemetryOption = vscode.workspace.getConfiguration('CangjieLog').get('Telemetry');
@@ -147,6 +151,8 @@ export class ChangjieContext implements vscode.Disposable {
   private static cwd: string;
   private static env: any;
   private static modulesHome: string;
+  // Flag to suppress crash recovery (handleConnectionClosed) during intentional stop
+  public static isStopping = false;
 
   subscriptions: vscode.Disposable[] = [];
   client!: CangjieLanguageClient | null;
@@ -233,7 +239,7 @@ export class ChangjieContext implements vscode.Disposable {
     if (Utility.checkIsValid(initializationOptions)) {
       await ChangjieContext.setEnvInfo(initializationOptions, context);
     }
-    
+
     let lspArgs = ChangjieContext.getLSPArgs(mainDir, context);
 
     // Get workspace folder path (supports single file mode)
@@ -344,6 +350,7 @@ export class ChangjieContext implements vscode.Disposable {
     if (!this.client) {
       return undefined;
     }
+    ChangjieContext.isStopping = true;
     try {
       await this.client.stop();
     } catch (err) {
@@ -351,6 +358,7 @@ export class ChangjieContext implements vscode.Disposable {
     }
     this.client = null;
     this.subscriptions = [];
+    ChangjieContext.isStopping = false;
     return undefined;
   }
 
