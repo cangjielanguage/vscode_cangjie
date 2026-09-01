@@ -183,19 +183,25 @@ export class CangjieDebugAdapterDescriptorFactory implements vscode.DebugAdapter
     let multiCmd = `"${cmd}" ${args.join(' ')}`;
     switch (getOs()) {
       case 'win': {
-        multiCmd = [checkIsValid(envConfInstance.pythonPath) ? `set "PATH=${envConfInstance.pythonPath};%PATH%"` : '',
+        const pythonBinPath = checkIsValid(envConfInstance.pythonPath)
+          ? PythonRuntimeValidator.getPythonExecutableDirectory(envConfInstance.pythonPath) : '';
+        multiCmd = [pythonBinPath ? `set "PATH=${pythonBinPath};%PATH%"` : '',
           `call "${envConfInstance.envSetupCommand}"`,
           `${multiCmd}`].filter(Boolean).join(' && ');
         break;
       }
       case 'linux': {
-        const ldPath = [envConfInstance.pythonPath,
+        const pythonLibraryPaths = checkIsValid(envConfInstance.pythonPath)
+          ? PythonRuntimeValidator.getPythonLibraryPaths(envConfInstance.pythonPath) : [];
+        const ldPath = [...pythonLibraryPaths,
           `${getSdkPath()}/third_party/llvm/lib`].filter(Boolean).join(':');
         multiCmd = `export LD_LIBRARY_PATH="${ldPath}:\${LD_LIBRARY_PATH}";${multiCmd}`;
         break;
       }
       case 'mac': {
-        const ldPath = [envConfInstance.pythonPath,
+        const pythonLibraryPaths = checkIsValid(envConfInstance.pythonPath)
+          ? PythonRuntimeValidator.getPythonLibraryPaths(envConfInstance.pythonPath) : [];
+        const ldPath = [...pythonLibraryPaths,
           `${getSdkPath()}/third_party/llvm/lib`, `${getSdkPath()}/tools/lib`].filter(Boolean).join(':');
         multiCmd = `export DYLD_LIBRARY_PATH="${ldPath}:\${DYLD_LIBRARY_PATH}";${multiCmd}`;
         break;
