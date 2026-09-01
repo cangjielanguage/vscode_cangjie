@@ -109,17 +109,53 @@ export class PythonRuntimeValidator {
    */
   static getConfiguredPythonVersion(pythonPath: string): Map<string, string> {
     const env = {...process.env};
-    const libPath = path.join(path.dirname(pythonPath), 'lib');
+    const libraryPaths = this.getPythonLibraryPaths(pythonPath);
     if (getOs() === 'linux') {
-      env.LD_LIBRARY_PATH = [pythonPath, `pythonPath/lib`, `${env.LD_LIBRARY_PATH}`].filter(Boolean).join(':');
+      env.LD_LIBRARY_PATH = [...libraryPaths, env.LD_LIBRARY_PATH].filter(Boolean).join(':');
     } else if (getOs() === 'mac') {
-      env.DYLD_LIBRARY_PATH = libPath + (env.DYLD_LIBRARY_PATH ? `:${env.DYLD_LIBRARY_PATH}` : '');
+      env.DYLD_LIBRARY_PATH = [...libraryPaths, env.DYLD_LIBRARY_PATH].filter(Boolean).join(':');
     } else if (getOs() === 'win') {
-      env.PATH = path.dirname(pythonPath) + (env.PATH ? `;${env.PATH}` : '');
+      env.PATH = [this.getPythonExecutableDirectory(pythonPath), env.PATH].filter(Boolean).join(';');
     } else {
       return null;
     }
     return this.getPythonVersions(pythonPath, env);
+  }
+
+  /**
+   * 获取 Python 动态库的候选目录，兼容根目录和 Unix/Conda 的 bin、lib 布局。
+   */
+  static getPythonLibraryPaths(pythonPath: string): string[] {
+    const pythonRoot = this.getPythonRootPath(pythonPath);
+    const pathApi = this.getPathApi(pythonPath);
+    return [pythonRoot, pathApi.join(pythonRoot, 'lib')];
+  }
+
+  /**
+   * 配置项既支持 Python 根目录，也支持 Python 解释器的绝对路径。
+   */
+  private static getPythonRootPath(pythonPath: string): string {
+    const pathApi = this.getPathApi(pythonPath);
+    const baseName = pathApi.basename(pythonPath).toLowerCase();
+    if (/^python(?:3(?:\.\d+)?)?(?:\.exe)?$/.test(baseName)) {
+      const executableDir = pathApi.dirname(pythonPath);
+      return pathApi.basename(executableDir).toLowerCase() === 'bin'
+        ? pathApi.dirname(executableDir) : executableDir;
+    }
+    return pathApi.basename(pythonPath).toLowerCase() === 'bin' ? pathApi.dirname(pythonPath) : pythonPath;
+  }
+
+  static getPythonExecutableDirectory(pythonPath: string): string {
+    const pathApi = this.getPathApi(pythonPath);
+    const baseName = pathApi.basename(pythonPath).toLowerCase();
+    if (/^python(?:3(?:\.\d+)?)?(?:\.exe)?$/.test(baseName)) {
+      return pathApi.dirname(pythonPath);
+    }
+    return pythonPath;
+  }
+
+  private static getPathApi(pythonPath: string): path.PlatformPath {
+    return pythonPath.includes('\\') ? path.win32 : path.posix;
   }
 
   /**
@@ -132,11 +168,17 @@ export class PythonRuntimeValidator {
   static getPythonVersions(pythonPath?: string, env?: NodeJS.ProcessEnv): Map<string, string> {
     const results: Map<string, string> = new Map<string, string>();
     let pythonPathValid = checkIsValid(pythonPath);
+    const pathApi = pythonPathValid ? this.getPathApi(pythonPath) : path;
+    const pythonName = pythonPathValid ? pathApi.basename(pythonPath).toLowerCase() : '';
+    const isPythonExecutable = /^python(?:3(?:\.\d+)?)?(?:\.exe)?$/.test(pythonName);
     let candidates = pythonPathValid
-      ? [path.join(pythonPath, 'python'), path.join(pythonPath, 'python3')]
+      ? (isPythonExecutable
+        ? [pythonPath]
+        : [pathApi.join(pythonPath, 'python'), pathApi.join(pythonPath, 'python3'),
+          pathApi.join(pythonPath, 'bin', 'python'), pathApi.join(pythonPath, 'bin', 'python3')])
       : ['python', 'python3'];
     for (let cmd of candidates) {
-      cmd = getOs() === 'win' ? `${cmd}.exe` : cmd;
+      cmd = getOs() === 'win' && !cmd.endsWith('.exe') ? `${cmd}.exe` : cmd;
       if (pythonPathValid) {
         if (!fs.existsSync(cmd)) {
           continue;
