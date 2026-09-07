@@ -349,7 +349,9 @@ export class Utility {
         scriptPath = `bash -c "source ${envsetupPath} && export TEMP_DYLD_FALLBACK_LIBRARY_PATH=\\$DYLD_FALLBACK_LIBRARY_PATH && export TEMP_DYLD_LIBRARY_PATH=\\$DYLD_LIBRARY_PATH`;
         envCmd = 'env"';
       }
-      const command = `${scriptPath} && ${envCmd}`;
+      // cmd.exe uses the system code page by default. Force UTF-8 so paths with
+      // non-ASCII characters survive the stdout decoding performed by Node.js.
+      const command = process.platform === 'win32' ? `chcp 65001 > nul && ${scriptPath} && ${envCmd}` : `${scriptPath} && ${envCmd}`;
       childProcess.exec(command, (error, stdout, stderr) => {
         if (error) {
           resolve(Utility.convertEnvToMap(process.env));
