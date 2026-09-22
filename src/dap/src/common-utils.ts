@@ -511,7 +511,6 @@ export function changeToEscapeCharacter(str: string): string {
   result = result.replace(/\\/g, '\\\\');
   result = result.replace(/\n/g, '\\n');
   result = result.replace(/\t/g, '\\t');
-  result = result.replace(/\o/g, '\\o');
   result = result.replace(/\r/g, '\\r');
   result = result.replace(/\v/g, '\\v');
   result = result.replace(/[\b]/g, '\\b');
