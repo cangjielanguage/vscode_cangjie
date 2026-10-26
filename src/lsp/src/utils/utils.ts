@@ -1752,15 +1752,16 @@ export class Utility {
    * If not found, check if `repoVersion` is an exact version; otherwise, return an empty string.
    *
    * @param project The project name.
-   * @param repoVersion The currently set dependency version, which could be a version range.
+   * @param repoVersion The dependency version string or a dependency table containing a version.
    * @returns The specific version string, or an empty string if not determinable.
    */
-  private static getProjectVersion(project: string, repoVersion: string): string {
+  private static getProjectVersion(project: string, repoVersion: string | Require): string {
     if (Object.prototype.hasOwnProperty.call(this.centralRepoVersion, project)) {
       return this.centralRepoVersion[project];
     }
-    if (this.isExactVersion(repoVersion)) {
-      return repoVersion;
+    const version = typeof repoVersion === 'string' ? repoVersion : repoVersion?.version;
+    if (typeof version === 'string' && this.isExactVersion(version)) {
+      return version;
     }
     return '';
   }
