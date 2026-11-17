@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) Huawei Technologies Co., Ltd. 2026. All rights reserved.
  * This source file is part of the Cangjie project, licensed under Apache-2.0
  * with Runtime Library Exception.
@@ -96,6 +96,8 @@ const elementId: { [key: string]: string } = {
   cross: 'cross',
   job: 'job',
   features: 'features',
+  compatVersion: 'compatVersion',
+  compatVersionDisplay: 'compatVersionDisplay',
   increment: 'increment',
   crossbtn: 'crossCompile',
   crossOpts: 'crossOpts',
@@ -230,6 +232,12 @@ class SettingByUi {
     }
 
     const el: HTMLInputElement = <HTMLInputElement>document.getElementById(id);
+    if (id === elementId.compatVersion) {
+      const displayElement = document.getElementById(elementId.compatVersionDisplay) as HTMLSpanElement;
+      if (this.checkIsValid(displayElement)) {
+        displayElement.style.display = 'none';
+      }
+    }
     this.vsCodeApi.postMessage({
       command: 'change',
       key: id,
@@ -248,6 +256,9 @@ class SettingByUi {
         break;
       case 'settedcjpmBuildArgs':
         this.updatedsettedcjpmBuildArgs(config);
+        break;
+      case 'settedCompatVersions':
+        this.updateCompatVersions(config);
         break;
       default:
         break;
@@ -454,6 +465,63 @@ class SettingByUi {
     }
     if (config.features !== '' && this.featuresItems.has(config.features)) {
       featuresElement.value = config.features;
+    }
+    const compatElement = document.getElementById(elementId.compatVersion) as HTMLSelectElement;
+    if (this.checkIsValid(config.compatVersion) && this.checkIsValid(compatElement)) {
+      const hasOption = Array.from(compatElement.options).some((option) => option.value === config.compatVersion);
+      if (hasOption) {
+        compatElement.value = config.compatVersion;
+      }
+    }
+  }
+
+  // The supported compatibility target versions are queried by the extension from the current toolchain.
+  private updateCompatVersions(config: unknown): void {
+    if (!this.checkIsValid(config)) {
+      return;
+    }
+    const compatElement = document.getElementById(elementId.compatVersion) as HTMLSelectElement;
+    const displayElement = document.getElementById(elementId.compatVersionDisplay) as HTMLSpanElement;
+    if (!this.checkIsValid(compatElement)) {
+      return;
+    }
+    const configObj = config as {versions?: unknown; supported?: unknown; unsupported?: unknown; selected?: unknown};
+    const versions = Array.isArray(configObj.versions) ? configObj.versions as string[] : [];
+    const selected = this.convertStr(configObj.selected);
+    this.updating = true;
+    try {
+      compatElement.innerHTML = '';
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = 'default (current SDK)';
+      compatElement.appendChild(defaultOption);
+      versions.forEach((version: string) => {
+        const option = document.createElement('option');
+        option.value = version;
+        option.textContent = version;
+        compatElement.appendChild(option);
+      });
+      const hasUnsupportedSelection = selected !== '' && !versions.includes(selected);
+      if (this.checkIsValid(displayElement)) {
+        displayElement.textContent = hasUnsupportedSelection ? selected : '';
+        displayElement.style.display = hasUnsupportedSelection ? 'block' : 'none';
+      }
+      if (configObj.supported === false && configObj.unsupported !== true) {
+        compatElement.disabled = true;
+        this.doShowInlayInfo(compatElement, 'Failed to obtain the supported compatibility version list.');
+      } else {
+        // Including the 'unsupported' case (an older toolchain without the option): keep the default
+        // SDK selectable there, without any failure indication.
+        compatElement.disabled = false;
+        compatElement.style.color = '';
+        if (hasUnsupportedSelection) {
+          compatElement.selectedIndex = -1;
+        } else {
+          compatElement.value = selected;
+        }
+      }
+    } finally {
+      this.updating = false;
     }
   }
 

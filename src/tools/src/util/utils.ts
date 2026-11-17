@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) Huawei Technologies Co., Ltd. 2026. All rights reserved.
  * This source file is part of the Cangjie project, licensed under Apache-2.0
  * with Runtime Library Exception.
@@ -14,6 +14,8 @@ import type {Uri, WorkspaceFolder} from 'vscode';
 import {ConfigurationTarget, window, workspace} from 'vscode';
 import {CJPM_TOML, cjpmBuildArgExtname, cjpmBuildArgs, CUSTOMIZED_OPTION, delay100, DEPENDENCIES, DEV_DEPENDENCIES, SCRIPT_DEPENDENCIES, envPathName, PACKAGE, PROFILE, SOURCE_SET, SRC, SRC_DIR} from './constant-num';
 import {OutputHelper} from './output-helper';
+import {COMPAT_VERSION_FIELD, COMPAT_VERSION_OPTION, isCompatOptionUnsupportedByCjcError,
+  isCompatVersionFormatValid, parseSupportedCompatVersionsFromCjcError} from './compat-version';
 import type {CjpmBuildArgs, ModuleJson} from './cjpm-config-data';
 import type {CustomTomlTypes} from './toml/toml-types';
 import {parse} from './toml/toml-export';
@@ -404,6 +406,20 @@ export class Utility {
     }
     const buildArgs = Utility.checkIsValid(buildArg) ? buildArg : cjpmBuildArgs;
     const cjpmBuildArgsPath = path.join(Utility.getWorkspaceFolders(), '/.vscode/cjpm_build_args.json');
+    if (!Utility.checkIsValid(buildArg) && fs.existsSync(cjpmBuildArgsPath)) {
+      // Upgrade an existing configuration without losing the values selected by the user:
+      // only fill the fields that are newly introduced by this extension version.
+      const existingArgs = Utility.getCjpmBuildArgsContent(cjpmBuildArgExtname) as unknown as Record<string, unknown>;
+      if (Utility.checkIsValid(existingArgs) && typeof existingArgs === 'object' &&
+        !Object.keys(cjpmBuildArgs).every((key) => Object.prototype.hasOwnProperty.call(existingArgs, key))) {
+        try {
+          fs.writeFileSync(cjpmBuildArgsPath, JSON.stringify({...cjpmBuildArgs, ...existingArgs}, null, '\t'));
+        } catch (error) {
+          OutputHelper.appendLine(error);
+        }
+        return;
+      }
+    }
     if (fs.existsSync(cjpmBuildArgsPath) &&
       Object.keys(Utility.getCjpmBuildArgsContent(cjpmBuildArgExtname)).length === Object.keys(buildArgs).length) {
       return;
@@ -438,6 +454,123 @@ export class Utility {
     }
     const curCjpmBuildArgs = fs.readFileSync(jsonPath, 'utf8');
     return curCjpmBuildArgs === '' ? '' : JSON.parse(curCjpmBuildArgs);
+  }
+
+  // Compatibility target versions accepted by the current toolchain; undefined when the list can not be read.
+  private static supportedCompatVersions: string[] | undefined = undefined;
+
+  // True once a probe has run for compatVersionsCangjieHome, so that failed probes are cached too.
+  private static compatVersionsProbed: boolean = false;
+
+  // True when the probed toolchain rejects `--compat-version` itself, i.e. an SDK without the option.
+  private static compatOptionUnsupported: boolean = false;
+
+  private static compatVersionsCangjieHome: string = '';
+
+  private static compatVersionsProbe: Promise<string[] | undefined> | undefined = undefined;
+
+  static getStoredCompatVersion(): string {
+    if (!Utility.checkIsValid(Utility.getWorkspaceFolders())) {
+      return '';
+    }
+    const buildArgs = Utility.getCjpmBuildArgsContent(cjpmBuildArgExtname);
+    if (!Utility.checkIsValid(buildArgs) || typeof buildArgs !== 'object') {
+      return '';
+    }
+    const compatVersion = buildArgs[COMPAT_VERSION_FIELD];
+    return typeof compatVersion === 'string' ? compatVersion.trim() : '';
+  }
+
+  static async getSupportedCompatVersions(forceRefresh: boolean = false): Promise<string[] | undefined> {
+    const cangjieHome = Utility.getCangjieHome();
+    if (!forceRefresh && Utility.compatVersionsProbed && Utility.compatVersionsCangjieHome === cangjieHome) {
+      return Utility.supportedCompatVersions;
+    }
+    if (Utility.compatVersionsProbe !== undefined && Utility.compatVersionsCangjieHome === cangjieHome) {
+      return Utility.compatVersionsProbe;
+    }
+    Utility.compatVersionsCangjieHome = cangjieHome;
+    Utility.compatVersionsProbed = true;
+    const probingHome = cangjieHome;
+    Utility.compatVersionsProbe = new Promise((resolve) => {
+      exec(Utility.getExecCmd('cjc --compat-version 0.0'),
+        {encoding: 'utf8', windowsHide: true, timeout: 5000}, (error, stdout, stderr) => {
+          const compilerOutput = `${stdout ?? ''}\n${stderr ?? ''}`;
+          const supported = parseSupportedCompatVersionsFromCjcError(compilerOutput);
+          const unsupported = supported === undefined && isCompatOptionUnsupportedByCjcError(compilerOutput);
+          if (Utility.compatVersionsCangjieHome === probingHome) {
+            Utility.supportedCompatVersions = supported;
+            Utility.compatOptionUnsupported = unsupported;
+            Utility.compatVersionsProbe = undefined;
+            if (supported === undefined && !unsupported) {
+              OutputHelper.appendLine(
+                `[warning]: failed to obtain the supported compatibility versions from cjc output: ${error?.message ?? ''}`,
+                true);
+            }
+          }
+          resolve(supported);
+        });
+    });
+    return Utility.compatVersionsProbe;
+  }
+
+  // True when the probed cjc does not know the '--compat-version' option at all (an older SDK).
+  static isCompatOptionUnsupported(): boolean {
+    return Utility.compatOptionUnsupported;
+  }
+
+  /**
+   * Refresh the compatibility targets after the toolchain changes. The stored selection is kept
+   * even when the new toolchain does not support it, so that switching back to the previous SDK
+   * restores the user's selection. Unsupported stored values are omitted from build commands.
+   */
+  static async refreshSupportedCompatVersions(): Promise<string[] | undefined> {
+    return Utility.getSupportedCompatVersions(true);
+  }
+
+  static async getCompatVersionForBuild(): Promise<{value: string; error: string}> {
+    const stored = Utility.getStoredCompatVersion();
+    if (stored === '') {
+      return {value: '', error: ''};
+    }
+    if (!isCompatVersionFormatValid(stored)) {
+      return {value: '', error: `Invalid compatibility target SDK version '${stored}': ` +
+        `the expected format is 'major.minor', e.g. '1.3'.`};
+    }
+    const supported = await Utility.getSupportedCompatVersions();
+    if (supported === undefined) {
+      return {value: '', error: ''};
+    }
+    if (!supported.includes(stored)) {
+      return {value: '', error: ''};
+    }
+    return {value: stored, error: ''};
+  }
+
+  /**
+   * Append the configured compatibility target to a cjpm build/run/test command.
+   * Returns an error instead of a command when the stored selection is not supported by the toolchain,
+   * so that an invalid selection can never be used for a build.
+   */
+  static async appendCompatVersion(cmd: string): Promise<{cmd: string; error: string}> {
+    const result = {cmd: cmd, error: ''};
+    if (!Utility.checkIsValid(cmd)) {
+      return result;
+    }
+    const trimmed = cmd.trim();
+    if (!/^cjpm\s+(build|run|test)(\s|$)/.test(trimmed) || /(^|\s)(-h|--help)(\s|$)/.test(trimmed) ||
+      trimmed.indexOf(COMPAT_VERSION_OPTION) !== -1) {
+      return result;
+    }
+    const compatVersion = await Utility.getCompatVersionForBuild();
+    if (compatVersion.error !== '') {
+      result.error = compatVersion.error;
+      return result;
+    }
+    if (compatVersion.value !== '') {
+      result.cmd = `${trimmed} ${COMPAT_VERSION_OPTION} ${compatVersion.value}`;
+    }
+    return result;
   }
 
   static getExportPath(): string {

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) Huawei Technologies Co., Ltd. 2026. All rights reserved.
  * This source file is part of the Cangjie project, licensed under Apache-2.0
  * with Runtime Library Exception.
@@ -20,6 +20,7 @@ import {
 } from '../util/constant-num';
 import type { CjpmBuildArgs } from '../util/cjpm-config-data';
 import type { ConfigSetMessage } from '../util/message-data';
+import { COMPAT_VERSION_FIELD } from '../util/compat-version';
 import * as path from 'path';
 import type {CustomTomlTypes} from '../util/toml/toml-types';
 import {stringify} from '../util/toml/toml-export';
@@ -27,12 +28,21 @@ import {stringify} from '../util/toml/toml-export';
 export class SettingsProvider extends ViewProvider {
   static existWebView: boolean = false;
 
+  private static instance?: SettingsProvider;
+
   public initialized: boolean = false;
 
   constructor(context: vscode.ExtensionContext) {
     super(context);
+    SettingsProvider.instance = this;
     this.viewType = 'SettingsProvider';
     this.title = 'Cangjie Configurations';
+  }
+
+  public static async refreshOpenPanel(): Promise<void> {
+    if (Utility.checkIsValid(SettingsProvider.instance?.panel)) {
+      await SettingsProvider.instance.postCompatVersions();
+    }
   }
 
   public getcjpmBuildArgs(): CjpmBuildArgs {
@@ -74,6 +84,10 @@ export class SettingsProvider extends ViewProvider {
           vscode.window.showWarningMessage('the coverage is only setted up in CJNative path');
           break;
         }
+        if (message.key === COMPAT_VERSION_FIELD) {
+          this.updateCompatVersion(<string>message.value).catch((e) => OutputHelper.appendLine(e));
+          break;
+        }
         this.updateConfig(message);
         break;
       }
@@ -81,6 +95,7 @@ export class SettingsProvider extends ViewProvider {
         this.initialized = true;
         this.settingsProviderActivated.fire();
         this.updateWebview(this.getcjpmBuildArgs(), this.getCjpmContent());
+        this.postCompatVersions();
         break;
       }
       case 'addConfig': {
@@ -106,6 +121,58 @@ export class SettingsProvider extends ViewProvider {
       default: {
         break;
       }
+    }
+  }
+
+  private async postCompatVersions(): Promise<void> {
+    if (!Utility.checkIsValid(this.panel)) {
+      return;
+    }
+    // Reuse the result cached for the current SDK. SDK path/backend changes refresh the cache in
+    // UpdateSdk, so reopening the panel or restoring a rejected selection does not spawn cjc again.
+    const supported = await Utility.getSupportedCompatVersions();
+    if (!Utility.checkIsValid(this.panel)) {
+      return;
+    }
+    this.panel.webview.postMessage({
+      command: 'settedCompatVersions',
+      config: {
+        versions: supported ?? [],
+        supported: supported !== undefined,
+        // An older toolchain without the '--compat-version' option is a normal state: the UI keeps
+        // only the default SDK selection for it, without any failure indication.
+        unsupported: Utility.isCompatOptionUnsupported(),
+        selected: Utility.getStoredCompatVersion(),
+      },
+    });
+  }
+
+  private async updateCompatVersion(value: string): Promise<void> {
+    const newValue = typeof value === 'string' ? value.trim() : '';
+    if (newValue !== '') {
+      const supported = await Utility.getSupportedCompatVersions();
+      if (supported === undefined || !supported.includes(newValue)) {
+        vscode.window.showErrorMessage(`The compatibility target SDK version '${newValue}' is not supported by ` +
+          'the current toolchain, the previous selection is kept.');
+        this.postCompatVersions();
+        return;
+      }
+    }
+    if (newValue === Utility.getStoredCompatVersion()) {
+      return;
+    }
+    this.updateJsonConfig(COMPAT_VERSION_FIELD, this.cjpmbuildPath, newValue);
+    const lspState: boolean = await vscode.commands.executeCommand('cangjie.lsp.state');
+    if (!lspState) {
+      return;
+    }
+    const quickPickOptions: vscode.QuickPickOptions = {
+      title: 'compatibility target SDK version is modified!',
+      placeHolder: 'The compatibility target SDK version has been modified, do you want to restart the LSPServer to activate modifications?',
+    };
+    const select = await vscode.window.showQuickPick(['Yes', 'No'], quickPickOptions);
+    if (select === 'Yes') {
+      vscode.commands.executeCommand('cangjie.lsp.reLaunch');
     }
   }
 
