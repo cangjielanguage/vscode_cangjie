@@ -80,7 +80,15 @@
         <select name="inputValue" id="features" class="select-default" style="width: 640px; ">
             <option value="">None</option>
         </select>
-    </div> <!-- cjpm build configurable parameters settings end -->
+        <label style="margin-bottom: 2px; margin-top: 15px">specify the compatibility target SDK version used by build, run and the language service. eg: <code>1.3</code></label>
+        <div style="position: relative; width: 320px;">
+            <select name="inputValue" id="compatVersion" class="select-default" style="width: 320px; ">
+                <option value="">default (current SDK)</option>
+            </select>
+            <span id="compatVersionDisplay" style="display: none; position: absolute; left: 8px; right: 28px; top: 50%; transform: translateY(-50%); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; pointer-events: none; background: var(--vscode-dropdown-background);"> </span>
+        </div>
+    </div>
+    <!-- cjpm build configurable parameters settings end -->
 
     <!-- title -->
     <div style=" height: 90px; display: inline-block;">

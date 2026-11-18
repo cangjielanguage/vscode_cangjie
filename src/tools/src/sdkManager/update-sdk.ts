@@ -8,8 +8,8 @@
 
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import { Utility } from '../util/utils';
-import * as path from 'path';
+import {Utility} from '../util/utils';
+import {SettingsProvider} from '../buildProject/setting-provider';
 
 export class UpdateSdk {
   /**
@@ -31,8 +31,13 @@ export class UpdateSdk {
     }
     // config CANGJIE_HOME env
     const lspState: boolean = await vscode.commands.executeCommand('cangjie.lsp.state');
+    const sdkExists = fs.existsSync(pathSdk) && UpdateSdk.envsetupFileIsExist(pathSdk);
+    if (sdkExists) {
+      await Utility.refreshSupportedCompatVersions();
+      await SettingsProvider.refreshOpenPanel();
+    }
     if (lspState) {
-      if (fs.existsSync(pathSdk) && UpdateSdk.envsetupFileIsExist(pathSdk)) {
+      if (sdkExists) {
         Utility.removeSdkAttributes();
         Utility.configTerminalcjpmEnv();
         vscode.window.showInformationMessage('Set SDK path success');
@@ -61,6 +66,9 @@ export class UpdateSdk {
       Utility.removeSdkAttributes();
       vscode.window.showInformationMessage(`You have changed to ${backend}-backend compiler.`);
       Utility.configTerminalcjpmEnv();
+      // Refresh compatibility targets for the newly selected backend SDK.
+      await Utility.refreshSupportedCompatVersions();
+      await SettingsProvider.refreshOpenPanel();
     }
   }
 
